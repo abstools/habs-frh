@@ -1,4 +1,4 @@
-{-# LINE 1 "..\habs-stdlib\src\ABS\DC.abs" #-}
+{-# LINE 1 "frh\single_module\DC.abs" #-}
 {-# LANGUAGE NoImplicitPrelude, ExistentialQuantification,
   MultiParamTypeClasses, ScopedTypeVariables, FlexibleContexts,
   PartialTypeSignatures, LambdaCase, OverloadedStrings #-}
@@ -38,12 +38,12 @@ import qualified Data.Dynamic as I' (toDyn, fromDynamic)
 import qualified Data.Map as I' (lookup)
 import qualified Web.Scotty as I' (get, param, json, raise)
 import qualified ABS.StdLib as I' (put)
-{-# LINE 5 "..\habs-stdlib\src\ABS\DC.abs" #-}
+{-# LINE 5 "frh\single_module\DC.abs" #-}
 import ABS.SetsMaps hiding (main)
 
 default (Int, Rat)
 
-{-# LINE 7 "..\habs-stdlib\src\ABS\DC.abs" #-}
+{-# LINE 7 "frh\single_module\DC.abs" #-}
 data SimDeploymentComponent = SimDeploymentComponent{description'SimDeploymentComponent
                                                      :: String,
                                                      initconfig'SimDeploymentComponent ::
@@ -60,7 +60,7 @@ smart'SimDeploymentComponent description'this initconfig'this
 
 init'SimDeploymentComponent ::
                             Obj' SimDeploymentComponent -> I'.IO ()
-{-# LINE 7 "..\habs-stdlib\src\ABS\DC.abs" #-}
+{-# LINE 7 "frh\single_module\DC.abs" #-}
 init'SimDeploymentComponent this@(Obj' this' _ thisDC) = I'.pure ()
 
 instance DeploymentComponent' SimDeploymentComponent where
@@ -126,45 +126,45 @@ instance DeploymentComponent' SimDeploymentComponent where
                             I'.readIORef remaining))
                  =<< I'.lift (I'.readIORef this')
 
-{-# LINE 87 "..\habs-stdlib\src\ABS\DC.abs" #-}
+{-# LINE 87 "frh\single_module\DC.abs" #-}
 class CloudProvider' a where
-        {-# LINE 91 "..\habs-stdlib\src\ABS\DC.abs" #-}
+        {-# LINE 91 "frh\single_module\DC.abs" #-}
         prelaunchInstance ::
                           Map Resourcetype Rat -> Obj' a -> ABS' DeploymentComponent
         
-        {-# LINE 92 "..\habs-stdlib\src\ABS\DC.abs" #-}
+        {-# LINE 92 "frh\single_module\DC.abs" #-}
         launchInstance ::
                        Map Resourcetype Rat -> Obj' a -> ABS' DeploymentComponent
         
-        {-# LINE 95 "..\habs-stdlib\src\ABS\DC.abs" #-}
+        {-# LINE 95 "frh\single_module\DC.abs" #-}
         acquireInstance :: DeploymentComponent -> Obj' a -> ABS' Bool
         
-        {-# LINE 97 "..\habs-stdlib\src\ABS\DC.abs" #-}
+        {-# LINE 97 "frh\single_module\DC.abs" #-}
         shutdownInstance :: DeploymentComponent -> Obj' a -> ABS' Bool
         
-        {-# LINE 107 "..\habs-stdlib\src\ABS\DC.abs" #-}
+        {-# LINE 107 "frh\single_module\DC.abs" #-}
         setInstanceDescriptions ::
                                 Map String (Map Resourcetype Rat) -> Obj' a -> ABS' Unit
         
-        {-# LINE 108 "..\habs-stdlib\src\ABS\DC.abs" #-}
+        {-# LINE 108 "frh\single_module\DC.abs" #-}
         addInstanceDescription ::
                                Pair String (Map Resourcetype Rat) -> Obj' a -> ABS' Unit
         
-        {-# LINE 109 "..\habs-stdlib\src\ABS\DC.abs" #-}
+        {-# LINE 109 "frh\single_module\DC.abs" #-}
         removeInstanceDescription :: String -> Obj' a -> ABS' Unit
         
-        {-# LINE 110 "..\habs-stdlib\src\ABS\DC.abs" #-}
+        {-# LINE 110 "frh\single_module\DC.abs" #-}
         getInstanceDescriptions ::
                                 Obj' a -> ABS' (Map String (Map Resourcetype Rat))
         
-        {-# LINE 111 "..\habs-stdlib\src\ABS\DC.abs" #-}
+        {-# LINE 111 "frh\single_module\DC.abs" #-}
         prelaunchInstanceNamed ::
                                String -> Obj' a -> ABS' DeploymentComponent
         
-        {-# LINE 112 "..\habs-stdlib\src\ABS\DC.abs" #-}
+        {-# LINE 112 "frh\single_module\DC.abs" #-}
         launchInstanceNamed :: String -> Obj' a -> ABS' DeploymentComponent
         
-        {-# LINE 114 "..\habs-stdlib\src\ABS\DC.abs" #-}
+        {-# LINE 114 "frh\single_module\DC.abs" #-}
         addSmartDeployInstances :: Obj' a -> ABS' Unit
 
 data CloudProvider = forall a . CloudProvider' a =>
@@ -193,7 +193,7 @@ instance CloudProvider' Null' where
 instance CloudProvider' a => Sub' (Obj' a) CloudProvider where
         up' = CloudProvider
 
-{-# LINE 122 "..\habs-stdlib\src\ABS\DC.abs" #-}
+{-# LINE 122 "frh\single_module\DC.abs" #-}
 data SimCloudProvider = SimCloudProvider{acquiredInstances'SimCloudProvider
                                          :: List DeploymentComponent,
                                          instanceDescriptions'SimCloudProvider ::
@@ -228,7 +228,7 @@ smart'SimCloudProvider name'this
       ((map []) :: Map String (Map Resourcetype Rat))
 
 init'SimCloudProvider :: Obj' SimCloudProvider -> I'.IO ()
-{-# LINE 122 "..\habs-stdlib\src\ABS\DC.abs" #-}
+{-# LINE 122 "frh\single_module\DC.abs" #-}
 init'SimCloudProvider this@(Obj' this' _ thisDC) = I'.pure ()
 
 instance CloudProvider' SimCloudProvider where
@@ -495,7 +495,7 @@ createInstance''SimCloudProvider instancename d
        I'.lift ((up' <$!> I'.readIORef result))
 
 contains_ :: forall a . _ => List a -> a -> Bool
-{-# LINE 320 "..\habs-stdlib\src\ABS\DC.abs" #-}
+{-# LINE 320 "frh\single_module\DC.abs" #-}
 contains_ xs y
   = case xs of
         [] -> False

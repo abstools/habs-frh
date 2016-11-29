@@ -1,4 +1,4 @@
-{-# LINE 1 "..\habs-stdlib\src\ABS\SetsMaps.abs" #-}
+{-# LINE 1 "frh\single_module\SetsMaps.abs" #-}
 {-# LANGUAGE NoImplicitPrelude, ExistentialQuantification,
   MultiParamTypeClasses, ScopedTypeVariables, FlexibleContexts,
   PartialTypeSignatures, LambdaCase, OverloadedStrings #-}
@@ -36,20 +36,20 @@ import qualified ABS.StdLib as I' (put)
 
 default (Int, Rat)
 
-{-# LINE 15 "..\habs-stdlib\src\ABS\SetsMaps.abs" #-}
+{-# LINE 15 "frh\single_module\SetsMaps.abs" #-}
 data Set a = EmptySet
            | Insert !a !(Set a)
            deriving (I'.Eq, I'.Show)
 
 set :: forall a . _ => List a -> Set a
-{-# LINE 21 "..\habs-stdlib\src\ABS\SetsMaps.abs" #-}
+{-# LINE 21 "frh\single_module\SetsMaps.abs" #-}
 set l
   = case l of
         [] -> EmptySet
         (x : xs) -> (insertElement (set xs) x)
 
 contains :: forall a . _ => Set a -> a -> Bool
-{-# LINE 39 "..\habs-stdlib\src\ABS\SetsMaps.abs" #-}
+{-# LINE 39 "frh\single_module\SetsMaps.abs" #-}
 contains ss e
   = case ss of
         EmptySet -> False
@@ -57,18 +57,18 @@ contains ss e
         Insert x xs -> if (x > e) then False else (contains xs e)
 
 emptySet :: forall a . _ => Set a -> Bool
-{-# LINE 59 "..\habs-stdlib\src\ABS\SetsMaps.abs" #-}
+{-# LINE 59 "frh\single_module\SetsMaps.abs" #-}
 emptySet xs = (xs == EmptySet)
 
 size :: forall a . _ => Set a -> Int
-{-# LINE 69 "..\habs-stdlib\src\ABS\SetsMaps.abs" #-}
+{-# LINE 69 "frh\single_module\SetsMaps.abs" #-}
 size xs
   = case xs of
         EmptySet -> 0
         Insert s ss -> (1 + (size ss))
 
 union :: forall a . _ => Set a -> Set a -> Set a
-{-# LINE 87 "..\habs-stdlib\src\ABS\SetsMaps.abs" #-}
+{-# LINE 87 "frh\single_module\SetsMaps.abs" #-}
 union set1 set2
   = case set1 of
         EmptySet -> set2
@@ -79,7 +79,7 @@ union set1 set2
                                                 else (Insert e2 (union set1 ss2))
 
 intersection :: forall a . _ => Set a -> Set a -> Set a
-{-# LINE 119 "..\habs-stdlib\src\ABS\SetsMaps.abs" #-}
+{-# LINE 119 "frh\single_module\SetsMaps.abs" #-}
 intersection set1 set2
   = case set1 of
         EmptySet -> EmptySet
@@ -90,7 +90,7 @@ intersection set1 set2
                                                 (intersection set1 ss2)
 
 difference :: forall a . _ => Set a -> Set a -> Set a
-{-# LINE 153 "..\habs-stdlib\src\ABS\SetsMaps.abs" #-}
+{-# LINE 153 "frh\single_module\SetsMaps.abs" #-}
 difference set1 set2
   = case set1 of
         EmptySet -> EmptySet
@@ -102,7 +102,7 @@ difference set1 set2
                                                 (difference set1 ss2)
 
 insertElement :: forall a . _ => Set a -> a -> Set a
-{-# LINE 187 "..\habs-stdlib\src\ABS\SetsMaps.abs" #-}
+{-# LINE 187 "frh\single_module\SetsMaps.abs" #-}
 insertElement xs e
   = case xs of
         EmptySet -> (Insert e EmptySet)
@@ -111,7 +111,7 @@ insertElement xs e
                          (Insert x (insertElement ss e))
 
 remove :: forall a . _ => Set a -> a -> Set a
-{-# LINE 207 "..\habs-stdlib\src\ABS\SetsMaps.abs" #-}
+{-# LINE 207 "frh\single_module\SetsMaps.abs" #-}
 remove xs e
   = case xs of
         EmptySet -> EmptySet
@@ -119,35 +119,35 @@ remove xs e
         Insert x ss -> if (e < x) then xs else (Insert x (remove ss e))
 
 take :: forall a . _ => Set a -> a
-{-# LINE 231 "..\habs-stdlib\src\ABS\SetsMaps.abs" #-}
+{-# LINE 231 "frh\single_module\SetsMaps.abs" #-}
 take ss
   = case ss of
         Insert e _ -> e
 
 hasNext :: forall a . _ => Set a -> Bool
-{-# LINE 243 "..\habs-stdlib\src\ABS\SetsMaps.abs" #-}
+{-# LINE 243 "frh\single_module\SetsMaps.abs" #-}
 hasNext s = (not (emptySet s))
 
 next :: forall a . _ => Set a -> Pair (Set a) a
-{-# LINE 249 "..\habs-stdlib\src\ABS\SetsMaps.abs" #-}
+{-# LINE 249 "frh\single_module\SetsMaps.abs" #-}
 next s
   = case s of
         Insert e set2 -> ((set2, e))
 
-{-# LINE 260 "..\habs-stdlib\src\ABS\SetsMaps.abs" #-}
+{-# LINE 260 "frh\single_module\SetsMaps.abs" #-}
 data Map a b = EmptyMap
              | InsertAssoc !(Pair a b) !(Map a b)
              deriving (I'.Eq, I'.Show)
 
 map :: forall a b . _ => List (Pair a b) -> Map a b
-{-# LINE 264 "..\habs-stdlib\src\ABS\SetsMaps.abs" #-}
+{-# LINE 264 "frh\single_module\SetsMaps.abs" #-}
 map l
   = case l of
         [] -> EmptyMap
         (hd : tl) -> (InsertAssoc hd (map tl))
 
 removeKey :: forall a b . _ => Map a b -> a -> Map a b
-{-# LINE 278 "..\habs-stdlib\src\ABS\SetsMaps.abs" #-}
+{-# LINE 278 "frh\single_module\SetsMaps.abs" #-}
 removeKey map key
   = case map of
         EmptyMap -> map
@@ -155,21 +155,21 @@ removeKey map key
         InsertAssoc pair tail -> (InsertAssoc pair (removeKey tail key))
 
 values :: forall a b . _ => Map a b -> List b
-{-# LINE 294 "..\habs-stdlib\src\ABS\SetsMaps.abs" #-}
+{-# LINE 294 "frh\single_module\SetsMaps.abs" #-}
 values map
   = case map of
         EmptyMap -> []
         InsertAssoc (_, elem) tail -> (elem : (values tail))
 
 keys :: forall a b . _ => Map a b -> Set a
-{-# LINE 312 "..\habs-stdlib\src\ABS\SetsMaps.abs" #-}
+{-# LINE 312 "frh\single_module\SetsMaps.abs" #-}
 keys map
   = case map of
         EmptyMap -> EmptySet
         InsertAssoc (a, _) tail -> (insertElement (keys tail) a)
 
 lookup :: forall a b . _ => Map a b -> a -> Maybe b
-{-# LINE 330 "..\habs-stdlib\src\ABS\SetsMaps.abs" #-}
+{-# LINE 330 "frh\single_module\SetsMaps.abs" #-}
 lookup ms k
   = case ms of
         InsertAssoc (k', y) _ | k' == k -> (Just y)
@@ -177,15 +177,15 @@ lookup ms k
         EmptyMap -> Nothing
 
 lookupMaybe :: forall a b . _ => Map a b -> a -> Maybe b
-{-# LINE 350 "..\habs-stdlib\src\ABS\SetsMaps.abs" #-}
+{-# LINE 350 "frh\single_module\SetsMaps.abs" #-}
 lookupMaybe ms k = (lookup ms k)
 
 lookupUnsafe :: forall a b . _ => Map a b -> a -> b
-{-# LINE 362 "..\habs-stdlib\src\ABS\SetsMaps.abs" #-}
+{-# LINE 362 "frh\single_module\SetsMaps.abs" #-}
 lookupUnsafe ms k = (fromJust (lookup ms k))
 
 lookupDefault :: forall a b . _ => Map a b -> a -> b -> b
-{-# LINE 376 "..\habs-stdlib\src\ABS\SetsMaps.abs" #-}
+{-# LINE 376 "frh\single_module\SetsMaps.abs" #-}
 lookupDefault ms k d
   = case ms of
         InsertAssoc (k', y) _ | k' == k -> y
@@ -193,11 +193,11 @@ lookupDefault ms k d
         EmptyMap -> d
 
 insert :: forall a b . _ => Map a b -> Pair a b -> Map a b
-{-# LINE 398 "..\habs-stdlib\src\ABS\SetsMaps.abs" #-}
+{-# LINE 398 "frh\single_module\SetsMaps.abs" #-}
 insert map p = (InsertAssoc p map)
 
 put :: forall a b . _ => Map a b -> a -> b -> Map a b
-{-# LINE 410 "..\habs-stdlib\src\ABS\SetsMaps.abs" #-}
+{-# LINE 410 "frh\single_module\SetsMaps.abs" #-}
 put ms k v
   = case ms of
         EmptyMap -> (InsertAssoc ((k, v)) EmptyMap)

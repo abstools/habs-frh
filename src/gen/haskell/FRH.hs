@@ -1,16 +1,16 @@
 {-# LINE 1 "frh\single_module\FRH.abs" #-}
 {-# LANGUAGE NoImplicitPrelude, ExistentialQuantification,
   MultiParamTypeClasses, ScopedTypeVariables, FlexibleContexts,
-  PartialTypeSignatures, LambdaCase, OverloadedStrings #-}
+  PartialTypeSignatures, LambdaCase, OverloadedStrings, FlexibleInstances #-}
 {-# OPTIONS_GHC
   -w -Werror -fforce-recomp -fwarn-missing-methods -fno-ignore-asserts#-}
 module FRH (main) where
-import ABS.Runtime
 import ABS.StdLib
        hiding (Map, map, _emptyMap, put, insert, lookup, lookupMaybe,
                lookupUnsafe, lookupDefault, removeKey, keys, values, Set, set,
                _emptySet, emptySet, size, contains, union, intersection,
                difference, insertElement, remove, take, hasNext, next)
+import ABS.Runtime
 import Data.Function ((.))
 import Control.Applicative ((<*>), (*>))
 import Control.Monad ((=<<))
@@ -21,7 +21,7 @@ import qualified Control.Monad.Trans.Class as I' (lift)
 import qualified Control.Monad as I' (when, sequence, join)
 import qualified Prelude as I'
        (IO, Eq, Ord(..), Show(..), undefined, error, negate, fromIntegral,
-        mapM_,fmap)
+        mapM_)
 import qualified Unsafe.Coerce as I' (unsafeCoerce)
 import qualified Control.Concurrent as I' (ThreadId)
 import qualified Control.Concurrent.MVar as I'
@@ -37,6 +37,35 @@ import qualified ABS.StdLib as I' (put)
 import ABS.SetsMaps hiding (main)
 {-# LINE 4 "frh\single_module\FRH.abs" #-}
 import ABS.DC hiding (main)
+import qualified Data.Functor as I' (fmap)
+import qualified Data.Aeson as J (ToJSON (..), Value(..))
+import qualified Data.HashMap.Strict as H
+import qualified Data.Text as T
+import System.Clock (toNanoSecs)
+import Prelude (quot)
+
+instance {-# OVERLAPS #-} J.ToJSON (List (Pair Time (List (Pair String Rat)))) where
+  toJSON l = J.Object (H.singleton "result" (J.String (show' l)))
+
+class Show' a where
+  show' :: a -> T.Text
+
+instance Show' a => Show' (List a) where
+  show' [] = "list[]"
+  show' ls = T.intercalate "," (I'.fmap show' ls)
+
+instance (Show' a, Show' b) => Show' (Pair a b) where
+  show' (a,b) = "Pair(" `T.append` show' a `T.append` "," `T.append` show' b `T.append` ")"
+
+instance Show' Rat where
+  show' r = T.pack (I'.show (numerator r)) `T.append` "/" `T.append` T.pack (I'.show (denominator r))
+
+instance {-# OVERLAPS #-} Show' String where
+  show' = T.pack
+
+instance Show' Time where
+  show' t = T.pack (I'.show (toNanoSecs t `quot` 1000000)) -- ms
+
 
 default (Int, Rat)
 
@@ -5648,22 +5677,27 @@ instance MonitoringQueryEndpoint' MonitoringQueryEndpointImpl where
                start :: IORef' Time <- I'.lift (I'.newIORef =<< now)
                _ <- (this <..>) =<< I'.lift (I'.pure invoke <*> I'.readIORef req)
                end :: IORef' Time <- I'.lift (I'.newIORef =<< now)
-               newProcTime :: IORef' Rat <- I'.lift
+               newProcTime :: IORef' Int <- I'.lift
                                               (I'.newIORef =<<
-                                                 ((-) <$!> (I'.pure timeValue <*> I'.readIORef end)
-                                                    <*> (I'.pure timeValue <*> I'.readIORef start)))
+                                                 (I'.pure truncate <*>
+                                                    ((-) <$!>
+                                                       (I'.pure timeValue <*> I'.readIORef end)
+                                                       <*>
+                                                       (I'.pure timeValue <*> I'.readIORef start))))
                I'.lift (print "old proctime: ")
                I'.lift (print (toString (I'.fromIntegral proctime)))
                I'.lift (print " new proctime: ")
                I'.lift
-                 (println =<< (I'.pure toString <*> I'.readIORef newProcTime))
+                 (println =<<
+                    (I'.pure toString <*>
+                       (I'.fromIntegral <$!> I'.readIORef newProcTime)))
                _ <- (\ this'' ->
                        (\ (DegradationMonitorIf obj') ->
                           awaitSugar'' this obj' =<<
                             I'.lift
                               (I'.pure notify_query_Mon <*> I'.readIORef start <*>
                                  I'.pure customer
-                                 <*> I'.readIORef newProcTime))
+                                 <*> (I'.fromIntegral <$!> I'.readIORef newProcTime)))
                          (monitor'MonitoringQueryEndpointImpl this''))
                       =<< I'.lift (I'.readIORef this')
                I'.pure ()
@@ -6118,4 +6152,26 @@ main
                                                                                     obj'' <!>
                                                                                       mapplied')
                                        Nothing -> I'.raise "wrong interface"
+                    Nothing -> I'.raise "no such object name")
+          I'.get "/call/:httpName'/metricHistory"
+            (do objs' <- I'.lift (I'.readIORef apiStore')
+                httpName' <- I'.param "httpName'"
+                case I'.lookup httpName' objs' of
+                    Just obj' -> I'.json =<<
+                                   case I'.fromDynamic obj' of
+                                       Just (DegradationMonitorIf obj'') -> do mapplied' <- I'.pure
+                                                                                              metricHistory
+                                                                               I'.lift
+                                                                                 (get =<<
+                                                                                    obj'' <!>
+                                                                                      mapplied')
+                                       Nothing -> case I'.fromDynamic obj' of
+                                                      Just
+                                                        (Monitor obj'') -> do mapplied' <- I'.pure
+                                                                                             metricHistory
+                                                                              I'.lift
+                                                                                (get =<<
+                                                                                   obj'' <!>
+                                                                                     mapplied')
+                                                      Nothing -> I'.raise "wrong interface"
                     Nothing -> I'.raise "no such object name"))
