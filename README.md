@@ -1,6 +1,6 @@
 # Installing prerequisites
 
-On Ubuntu ==16.04:
+On Ubuntu == 16.04:
 
 ```bash
 # for docker
@@ -11,8 +11,16 @@ echo "deb https://apt.dockerproject.org/repo ubuntu-xenial main" | sudo tee /etc
 sudo apt-get update
 sudo apt-get install docker-engine
 
-# python and haskell
-sudo apt-get install python3 python3-pip ghc cabal-install happy zlib1g-dev 
+# for haskell 8.0.1
+echo "deb http://ppa.launchpad.net/hvr/ghc/ubuntu xenial main" | sudo tee /etc/apt/sources.list
+echo "deb http://cz.archive.ubuntu.com/ubuntu xenial main" | sudo tee /etc/apt/sources.list
+echo "deb http://security.ubuntu.com/ubuntu xenial-security main" | sudo tee /etc/apt/sources.list
+sudo apt-get update
+sudo apt-get install ghc-8.0.1 cabal-install-1.24 happy-1.19.5 zlib1g-dev 
+export PATH=$PATH:/opt/ghc/8.0.1/bin:/opt/cabal/1.24/bin:/opt/happy/1.19.5/bin
+
+# other deps
+sudo apt-get install unzip git python3 python3-pip
 pip3 install setuptools 
 pip3 install requests modgrammar
 git submodule update --init --recursive
@@ -40,12 +48,13 @@ cd habs/
 #cabal exec habs -- ../src/*.abs -o ../src/gen/haskell
 # manual modifications
 
-cabal exec ghc -- --make -O src/gen/haskell/ABS/*.hs src/gen/haskell/FRH.hs -main-is FRH 
+cabal exec ghc -- --make -O ../src/gen/haskell/ABS/*.hs ../src/gen/haskell/FRH.hs -main-is FRH 
 ```
 
 # Running the FRH case study
 
 ```bash
 ./src/gen/haskell/FRH --unit-time=1,ms --port=8080 -t &
+# inside the logreplay: re(place) custom_filters.py and fredhopper.biz.log
 python3 logreplay/logreplay.py logreplay/fredhopper.biz.log proctime customer=gamma,amazonECU=13 http://localhost:8080/call/queryService/invokeWithSize
 ```
