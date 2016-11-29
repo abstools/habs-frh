@@ -52,7 +52,7 @@ class Show' a where
 
 instance Show' a => Show' (List a) where
   show' [] = "list[]"
-  show' ls = T.intercalate "," (I'.fmap show' ls)
+  show' ls = "list[" `T.append` (T.intercalate "," (I'.fmap show' ls)) `T.append` "]"
 
 instance (Show' a, Show' b) => Show' (Pair a b) where
   show' (a,b) = "Pair(" `T.append` show' a `T.append` "," `T.append` show' b `T.append` ")"
@@ -61,7 +61,7 @@ instance Show' Rat where
   show' r = T.pack (I'.show (numerator r)) `T.append` "/" `T.append` T.pack (I'.show (denominator r))
 
 instance {-# OVERLAPS #-} Show' String where
-  show' = T.pack
+  show' s = "\"" `T.append` T.pack s `T.append` "\""
 
 instance Show' Time where
   show' t = T.pack (I'.show (toNanoSecs t `quot` 1000000)) -- ms
