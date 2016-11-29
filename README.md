@@ -2,8 +2,7 @@
 
 On Ubuntu ==16.04:
 
-```
-
+```bash
 # for docker
 sudo apt-get update
 sudo apt-get install apt-transport-https ca-certificates linux-image-extra-$(uname -r) linux-image-extra-virtual
