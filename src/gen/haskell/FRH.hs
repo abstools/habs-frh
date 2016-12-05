@@ -64,8 +64,7 @@ instance {-# OVERLAPS #-} Show' String where
   show' s = "\"" `T.append` T.pack s `T.append` "\""
 
 instance Show' Time where
-  show' t = T.pack (I'.show (toNanoSecs t `quot` 1000000)) -- ms
-
+  show' t = "Time(" `T.append` T.pack ( I'.show (toNanoSecs t `quot` 1000000)) `T.append` ")" -- ms
 
 default (Int, Rat)
 
