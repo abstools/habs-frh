@@ -12,9 +12,9 @@ sudo apt-get update
 sudo apt-get install docker-engine
 
 # for haskell 8.0.1
-echo "deb http://ppa.launchpad.net/hvr/ghc/ubuntu xenial main" | sudo tee /etc/apt/sources.list
-echo "deb http://cz.archive.ubuntu.com/ubuntu xenial main" | sudo tee /etc/apt/sources.list
-echo "deb http://security.ubuntu.com/ubuntu xenial-security main" | sudo tee /etc/apt/sources.list
+echo "deb http://ppa.launchpad.net/hvr/ghc/ubuntu xenial main" | sudo tee -a /etc/apt/sources.list
+echo "deb http://cz.archive.ubuntu.com/ubuntu xenial main" | sudo tee -a /etc/apt/sources.list
+echo "deb http://security.ubuntu.com/ubuntu xenial-security main" | sudo tee -a /etc/apt/sources.list
 sudo apt-get update
 sudo apt-get install ghc-8.0.1 cabal-install-1.24 happy-1.19.5 zlib1g-dev 
 export PATH=$PATH:/opt/ghc/8.0.1/bin:/opt/cabal/1.24/bin:/opt/happy/1.19.5/bin
@@ -54,7 +54,7 @@ cabal exec ghc -- --make -O ../src/gen/haskell/ABS/*.hs ../src/gen/haskell/FRH.h
 # Running the FRH case study
 
 ```bash
-./src/gen/haskell/FRH --unit-time=1,ms --port=8080 -t &
+../src/gen/haskell/FRH --unit-time=1,ms --port=8080 -t &
 # inside the logreplay: re(place) custom_filters.py and fredhopper.biz.log
 python3 logreplay/logreplay.py logreplay/fredhopper.biz.log proctime customer=gamma,amazonECU=13 http://localhost:8080/call/queryService/invokeWithSize
 ```
