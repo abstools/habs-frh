@@ -313,6 +313,20 @@ class SimCloudProvider(String name) implements CloudProvider {
     this.addInstanceDescription(Pair( "c4_xlarge_us2", map(Cons( Pair( CostPerInterval, 209 ), Cons( Pair( Cores, 4 ), Cons( Pair( Memory, 750 ), Cons( Pair( Speed, 16 ), Nil ) ) ) )) ));
     this.addInstanceDescription(Pair( "m4_xlarge_us2", map(Cons( Pair( CostPerInterval, 239 ), Cons( Pair( Cores, 4 ), Cons( Pair( Memory, 1600 ), Cons( Pair( Speed, 13 ), Nil ) ) ) )) ));
     this.addInstanceDescription(Pair( "m4_xlarge_us1", map(Cons( Pair( CostPerInterval, 239 ), Cons( Pair( Cores, 4 ), Cons( Pair( Memory, 1600 ), Cons( Pair( Speed, 13 ), Nil ) ) ) )) ));
+    this.addInstanceDescription(Pair("t2_small_us1",
+            map[Pair(CostPerInterval,26)
+            ,Pair(Cores,1)
+            ,Pair(Memory,200)
+            ,Pair(Speed,3)
+            //,Pair(Startupduration,7000)
+            ]));
+    this.addInstanceDescription(Pair("t2_small_us2",
+            map[Pair(CostPerInterval,26)
+            ,Pair(Cores,1)
+            ,Pair(Memory,200)
+            ,Pair(Speed,3)
+            //,Pair(Startupduration,7000)
+            ]));
   }
 
 }

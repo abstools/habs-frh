@@ -284,10 +284,21 @@ class DegradationMonitorImpl(DeployerIF deployer) implements DegradationMonitorI
   }
   
   Unit monitor(){
-    println("monitor");
-    {
-      
-    }
+    //corrective actions to improve metric
+     //deployer.scaleUp();
+     //println("monitor: " + toString(now()));
+    
+          //TODO
+          /*List<Pair<String, Rat>> currMetrics = snd(head(metricHist));
+          Rat slow200pct = snd(head(currMetrics));
+          Rat slow500pct = snd(head(tail(currMetrics)));
+     
+          if(slow200pct > 5 || slow500pct > 1) {
+            deployer.scaleUp();
+          } else if(slow200pct < 3 && slow500pct < 3/10) {
+            deployer.scaleDown();
+          }*/
+     
   }
   List<Pair<Time, List<Pair<String, Rat>>>> metricHistory(){
     List<Pair<Time, List<Pair<String, Rat>>>> copy = metricHist;
@@ -349,11 +360,11 @@ class DegradationMetricImpl implements DegradationMetricIf {
             custCnt = val;
           }
         }
-        Int new200 = ( old200 + case ( procTime > 200 ) {
+        Int new200 = ( old200 + case ( procTime > 20 ) {
             True => 1;
             False => 0;
           } );
-        Int new500 = ( old500 + case ( procTime > 500 ) {
+        Int new500 = ( old500 + case ( procTime > 50 ) {
             True => 1;
             False => 0;
           } );
@@ -436,9 +447,9 @@ class AddQueryDeployer(CloudProvider cloudProvider, MonitorPlatformService platf
     return ls_DeploymentComponent;
   }
   Unit deploy(){
-    DeploymentComponent m4_large_us2_0 = cloudProvider.prelaunchInstanceNamed("m4_large_us2");
+    DeploymentComponent m4_large_us2_0 = cloudProvider.prelaunchInstanceNamed("m4_xlarge_us2");
     ls_DeploymentComponent = Cons( m4_large_us2_0, ls_DeploymentComponent );
-    DeploymentComponent m4_large_us1_0 = cloudProvider.prelaunchInstanceNamed("m4_large_us1");
+    DeploymentComponent m4_large_us1_0 = cloudProvider.prelaunchInstanceNamed("m4_xlarge_us1");
     ls_DeploymentComponent = Cons( m4_large_us1_0, ls_DeploymentComponent );
     [DC : m4_large_us2_0]
     DeploymentAgent oDef___DeploymentAgentImpl_0_m4_large_us2_0 = new DeploymentAgentImpl();
@@ -541,7 +552,7 @@ class MainSmartDeployer(CloudProvider cloudProvider) implements SmartDeployInter
     ls_DeploymentComponent = Cons( m4_xlarge_eu_0, ls_DeploymentComponent );
     DeploymentComponent c4_2xlarge_us1_0 = cloudProvider.prelaunchInstanceNamed("c4_2xlarge_us1");
     ls_DeploymentComponent = Cons( c4_2xlarge_us1_0, ls_DeploymentComponent );
-    DeploymentComponent m4_large_us1_0 = cloudProvider.prelaunchInstanceNamed("m4_large_us1");
+    DeploymentComponent m4_large_us1_0 = cloudProvider.prelaunchInstanceNamed("m3_medium_us1");
     ls_DeploymentComponent = Cons( m4_large_us1_0, ls_DeploymentComponent );
     DeploymentComponent c4_xlarge_eu_0 = cloudProvider.prelaunchInstanceNamed("c4_xlarge_eu");
     ls_DeploymentComponent = Cons( c4_xlarge_eu_0, ls_DeploymentComponent );
@@ -549,7 +560,7 @@ class MainSmartDeployer(CloudProvider cloudProvider) implements SmartDeployInter
     ls_DeploymentComponent = Cons( c4_xlarge_us1_0, ls_DeploymentComponent );
     DeploymentComponent c4_xlarge_us2_0 = cloudProvider.prelaunchInstanceNamed("c4_xlarge_us2");
     ls_DeploymentComponent = Cons( c4_xlarge_us2_0, ls_DeploymentComponent );
-    DeploymentComponent m4_xlarge_us2_0 = cloudProvider.prelaunchInstanceNamed("m4_xlarge_us2");
+    DeploymentComponent m4_xlarge_us2_0 = cloudProvider.prelaunchInstanceNamed("m3_medium_us2");
     ls_DeploymentComponent = Cons( m4_xlarge_us2_0, ls_DeploymentComponent );
     [DC : c4_xlarge_us1_0]
     LoadBalancerEndPoint oDef___LoadBalancerEndPointImpl_0_c4_xlarge_us1_0 = new LoadBalancerEndPointImpl();
@@ -740,9 +751,9 @@ interface MonitorPlatformService extends PlatformService {
   Id addServiceInstance(Service s);
 }
 
-interface User {
-  Unit use(EndPoint endPoint, Int min, Int max);
-}
+// interface User {
+//   Unit use(EndPoint endPoint, Int min, Int max);
+// }
 
 interface MonitoringService {
   Unit addMS(Rule rule);
@@ -763,7 +774,7 @@ interface IQueryService extends Service {
 }
 
 interface MonitoringQueryEndpoint extends EndPoint {
-  [HTTPCallable] Unit invokeWithSize(Int proctime, Customer customer, Int amazonECU);
+  [HTTPCallable] Unit invokeWithDelay(Int proctime, Customer customer, Int amazonECU, Int delay);
 }
 
 interface UtilityFunctions {
@@ -915,7 +926,6 @@ class ServiceImpl(Id serviceId, ServiceType st, Customer c, Int cost) implements
     serviceId = id;
   }
   Response invoke(Request request){
-    println("invoke");
     assert ( state == RUNNING );
     Int cost = cost(request);
     Rat time = currentms();
@@ -1438,34 +1448,34 @@ class PlatformServiceImpl(DeploymentService ds, LoadBalancerService ls) implemen
 }
 
 
-class RepeatUserImpl implements User {
-  Int log = 0;
+// class RepeatUserImpl implements User {
+//   Int log = 0;
   
-  Unit use(EndPoint endPoint, Int min, Int max){
-    Int count = 0;
-    while (True) {
-      State state = this.getState(endPoint);
-      if ( ( state == RUNNING ) ){
-        log = ( log + 1 );
-        Response res = this.invoke(endPoint, min, max);
-      }
-    }
-  }
-  Response invoke(EndPoint point, Int min, Int max){
-    return this.invokeWithSize(point, min, max, 0);
-  }
-  Response invokeWithSize(EndPoint point, Int min, Int max, Request request){
-    await duration(min, max);
-    Fut<Response> bf = point!invoke(request);
-    Response b = bf.get;
-    return b;
-  }
-  State getState(EndPoint point){
-    Fut<State> sf = point!getStatus();
-    State state = sf.get;
-    return state;
-  }
-}
+//   Unit use(EndPoint endPoint, Int min, Int max){
+//     Int count = 0;
+//     while (True) {
+//       State state = this.getState(endPoint);
+//       if ( ( state == RUNNING ) ){
+//         log = ( log + 1 );
+//         Response res = this.invoke(endPoint, min, max);
+//       }
+//     }
+//   }
+//   Response invoke(EndPoint point, Int min, Int max){
+//     return this.invokeWithSize(point, min, max, 0);
+//   }
+//   Response invokeWithSize(EndPoint point, Int min, Int max, Request request){
+//     await duration(min, max);
+//     Fut<Response> bf = point!invoke(request);
+//     Response b = bf.get;
+//     return b;
+//   }
+//   State getState(EndPoint point){
+//     Fut<State> sf = point!getStatus();
+//     State state = sf.get;
+//     return state;
+//   }
+// }
 
 class MonitoringServiceImpl implements MonitoringService {
   Int log = 0;
@@ -1702,17 +1712,25 @@ class MonitoringQueryEndpointImpl(List<EndPoint> allEndpoints, DegradationMonito
   State getStatus(){
     return state;
   }
-  Unit invokeWithSize(Int proctime, Customer customer, Int amazonECU){
+  Unit invokeWithDelay(Int proctime, Customer customer, Int amazonECU, Int delay) {
     Request req = ( proctime * amazonECU );
     Time start = now();
     this.invoke(req);
     Time end = now();
     Int newProcTime = truncate( timeValue(end) - timeValue(start) );
-    print("old proctime: ");
-    print(toString(proctime));
-    print(" new proctime: ");
-    println(toString(newProcTime));
     await monitor!notify_query_Mon(start, customer, newProcTime); //MADEASYNC
+    
+    //delay until next query
+    //await duration(delay,delay); 
+
+    //print new query metrics
+    //print("old proctime: ");
+    //print(toString(proctime));
+    //print(" new proctime: ");
+    //print(toString(newProcTime));
+    //print(" delay: ");
+    //println(toString(delay));
+
   }
 }
 
@@ -1756,9 +1774,8 @@ class AddQueryServicesDeployerImpl(CloudProvider cloudProvider, MonitorPlatformS
   CloudProvider cp = new local SimCloudProvider("CloudProvider"); //MADELOCAL
   cp.addSmartDeployInstances();
   SmartDeployInterface c1 = new local MainSmartDeployer(cp); //MADELOCAL
-  println("after new MainSmartDeployer");
   c1.deploy();
-  println("after deploy");
+  println("Initial Deployment Configuration set up");
   List<Pair<MonitorPlatformService, DeploymentComponent>> monitorPlatformServices_aux = c1.getMonitorPlatformService();
   List<Pair<DeploymentService, DeploymentComponent>> deploymentServices_aux = c1.getDeploymentService();
   List<Pair<LoadBalancerEndPoint, DeploymentComponent>> loadBalancerEndPoints_aux = c1.getLoadBalancerEndPoint();
@@ -1783,8 +1800,8 @@ class AddQueryServicesDeployerImpl(CloudProvider cloudProvider, MonitorPlatformS
   DeployerIF deployerif = new AddQueryServicesDeployerImpl(cp, head(monitorPlatformServicesEu), head(monitorPlatformServicesUs), head(deploymentServicesUs), head(deploymentServicesEu), head(loadBalancerEndPointsEu), head(loadBalancerEndPointsUs), head(tail(loadBalancerEndPointsUs)));
   MonitoringService ms = new MonitoringServiceImpl();
   [HTTPName : "monitor"] DegradationMonitorIf degradationMonitor = new DegradationMonitorImpl(deployerif);
-  Fut<Unit> df = ms!addMS(Rule_( 5000, degradationMonitor ));
+  Fut<Unit> df = ms!addMS(Rule_( 500, degradationMonitor ));
   df.get;
   [HTTPName : "queryService"] MonitoringQueryEndpoint mqep = new MonitoringQueryEndpointImpl(loadBalancerEndPoints, degradationMonitor);
-  print("FRH model simulation terminated");
+  println("Endpoints set up. Waiting for requests...");
 }

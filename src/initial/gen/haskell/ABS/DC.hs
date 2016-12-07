@@ -1,4 +1,4 @@
-{-# LINE 1 "frh\single_module\DC.abs" #-}
+{-# LINE 1 "initial\DC.abs" #-}
 {-# LANGUAGE NoImplicitPrelude, ExistentialQuantification,
   MultiParamTypeClasses, ScopedTypeVariables, FlexibleContexts,
   PartialTypeSignatures, LambdaCase, OverloadedStrings #-}
@@ -38,12 +38,12 @@ import qualified Data.Dynamic as I' (toDyn, fromDynamic)
 import qualified Data.Map as I' (lookup)
 import qualified Web.Scotty as I' (get, param, json, raise)
 import qualified ABS.StdLib as I' (put)
-{-# LINE 5 "frh\single_module\DC.abs" #-}
+{-# LINE 5 "initial\DC.abs" #-}
 import ABS.SetsMaps hiding (main)
 
 default (Int, Rat)
 
-{-# LINE 7 "frh\single_module\DC.abs" #-}
+{-# LINE 7 "initial\DC.abs" #-}
 data SimDeploymentComponent = SimDeploymentComponent{description'SimDeploymentComponent
                                                      :: String,
                                                      initconfig'SimDeploymentComponent ::
@@ -60,7 +60,7 @@ smart'SimDeploymentComponent description'this initconfig'this
 
 init'SimDeploymentComponent ::
                             Obj' SimDeploymentComponent -> I'.IO ()
-{-# LINE 7 "frh\single_module\DC.abs" #-}
+{-# LINE 7 "initial\DC.abs" #-}
 init'SimDeploymentComponent this@(Obj' this' _ thisDC) = I'.pure ()
 
 instance DeploymentComponent' SimDeploymentComponent where
@@ -126,45 +126,45 @@ instance DeploymentComponent' SimDeploymentComponent where
                             I'.readIORef remaining))
                  =<< I'.lift (I'.readIORef this')
 
-{-# LINE 87 "frh\single_module\DC.abs" #-}
+{-# LINE 87 "initial\DC.abs" #-}
 class CloudProvider' a where
-        {-# LINE 91 "frh\single_module\DC.abs" #-}
+        {-# LINE 91 "initial\DC.abs" #-}
         prelaunchInstance ::
                           Map Resourcetype Rat -> Obj' a -> ABS' DeploymentComponent
         
-        {-# LINE 92 "frh\single_module\DC.abs" #-}
+        {-# LINE 92 "initial\DC.abs" #-}
         launchInstance ::
                        Map Resourcetype Rat -> Obj' a -> ABS' DeploymentComponent
         
-        {-# LINE 95 "frh\single_module\DC.abs" #-}
+        {-# LINE 95 "initial\DC.abs" #-}
         acquireInstance :: DeploymentComponent -> Obj' a -> ABS' Bool
         
-        {-# LINE 97 "frh\single_module\DC.abs" #-}
+        {-# LINE 97 "initial\DC.abs" #-}
         shutdownInstance :: DeploymentComponent -> Obj' a -> ABS' Bool
         
-        {-# LINE 107 "frh\single_module\DC.abs" #-}
+        {-# LINE 107 "initial\DC.abs" #-}
         setInstanceDescriptions ::
                                 Map String (Map Resourcetype Rat) -> Obj' a -> ABS' Unit
         
-        {-# LINE 108 "frh\single_module\DC.abs" #-}
+        {-# LINE 108 "initial\DC.abs" #-}
         addInstanceDescription ::
                                Pair String (Map Resourcetype Rat) -> Obj' a -> ABS' Unit
         
-        {-# LINE 109 "frh\single_module\DC.abs" #-}
+        {-# LINE 109 "initial\DC.abs" #-}
         removeInstanceDescription :: String -> Obj' a -> ABS' Unit
         
-        {-# LINE 110 "frh\single_module\DC.abs" #-}
+        {-# LINE 110 "initial\DC.abs" #-}
         getInstanceDescriptions ::
                                 Obj' a -> ABS' (Map String (Map Resourcetype Rat))
         
-        {-# LINE 111 "frh\single_module\DC.abs" #-}
+        {-# LINE 111 "initial\DC.abs" #-}
         prelaunchInstanceNamed ::
                                String -> Obj' a -> ABS' DeploymentComponent
         
-        {-# LINE 112 "frh\single_module\DC.abs" #-}
+        {-# LINE 112 "initial\DC.abs" #-}
         launchInstanceNamed :: String -> Obj' a -> ABS' DeploymentComponent
         
-        {-# LINE 114 "frh\single_module\DC.abs" #-}
+        {-# LINE 114 "initial\DC.abs" #-}
         addSmartDeployInstances :: Obj' a -> ABS' Unit
 
 data CloudProvider = forall a . CloudProvider' a =>
@@ -193,7 +193,7 @@ instance CloudProvider' Null' where
 instance CloudProvider' a => Sub' (Obj' a) CloudProvider where
         up' = CloudProvider
 
-{-# LINE 122 "frh\single_module\DC.abs" #-}
+{-# LINE 122 "initial\DC.abs" #-}
 data SimCloudProvider = SimCloudProvider{acquiredInstances'SimCloudProvider
                                          :: List DeploymentComponent,
                                          instanceDescriptions'SimCloudProvider ::
@@ -228,7 +228,7 @@ smart'SimCloudProvider name'this
       ((map []) :: Map String (Map Resourcetype Rat))
 
 init'SimCloudProvider :: Obj' SimCloudProvider -> I'.IO ()
-{-# LINE 122 "frh\single_module\DC.abs" #-}
+{-# LINE 122 "initial\DC.abs" #-}
 init'SimCloudProvider this@(Obj' this' _ thisDC) = I'.pure ()
 
 instance CloudProvider' SimCloudProvider where
@@ -456,6 +456,30 @@ instance CloudProvider' SimCloudProvider where
                           (map
                              (((CostPerInterval, 239)) :
                                 (((Cores, 4)) : (((Memory, 1600)) : (((Speed, 13)) : [])))))))
+               _ <- this <..>
+                      addInstanceDescription
+                        (("m3_medium_us1",
+                          (map
+                             [((CostPerInterval, 67)), ((Cores, 1)), ((Memory, 375)),
+                              ((Speed, 3))])))
+               _ <- this <..>
+                      addInstanceDescription
+                        (("m3_medium_us2",
+                          (map
+                             [((CostPerInterval, 67)), ((Cores, 1)), ((Memory, 375)),
+                              ((Speed, 3))])))
+               _ <- this <..>
+                      addInstanceDescription
+                        (("t2_small_us1",
+                          (map
+                             [((CostPerInterval, 26)), ((Cores, 1)), ((Memory, 200)),
+                              ((Speed, 3))])))
+               _ <- this <..>
+                      addInstanceDescription
+                        (("t2_small_us2",
+                          (map
+                             [((CostPerInterval, 26)), ((Cores, 1)), ((Memory, 200)),
+                              ((Speed, 3))])))
                I'.pure ()
 
 createInstance''SimCloudProvider ::
@@ -495,7 +519,7 @@ createInstance''SimCloudProvider instancename d
        I'.lift ((up' <$!> I'.readIORef result))
 
 contains_ :: forall a . _ => List a -> a -> Bool
-{-# LINE 320 "frh\single_module\DC.abs" #-}
+{-# LINE 349 "initial\DC.abs" #-}
 contains_ xs y
   = case xs of
         [] -> False

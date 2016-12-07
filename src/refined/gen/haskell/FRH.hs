@@ -1,4 +1,4 @@
-{-# LINE 1 "frh\single_module\FRH.abs" #-}
+{-# LINE 1 "refined\FRH.abs" #-}
 {-# LANGUAGE NoImplicitPrelude, ExistentialQuantification,
   MultiParamTypeClasses, ScopedTypeVariables, FlexibleContexts,
   PartialTypeSignatures, LambdaCase, OverloadedStrings, FlexibleInstances #-}
@@ -33,9 +33,9 @@ import qualified Data.Dynamic as I' (toDyn, fromDynamic)
 import qualified Data.Map as I' (lookup)
 import qualified Web.Scotty as I' (get, param, json, raise)
 import qualified ABS.StdLib as I' (put)
-{-# LINE 3 "frh\single_module\FRH.abs" #-}
+{-# LINE 3 "refined\FRH.abs" #-}
 import ABS.SetsMaps hiding (main)
-{-# LINE 4 "frh\single_module\FRH.abs" #-}
+{-# LINE 4 "refined\FRH.abs" #-}
 import ABS.DC hiding (main)
 import qualified Data.Functor as I' (fmap)
 import qualified Data.Aeson as J (ToJSON (..), Value(..))
@@ -68,29 +68,29 @@ instance Show' Time where
 
 default (Int, Rat)
 
-{-# LINE 9 "frh\single_module\FRH.abs" #-}
+{-# LINE 9 "refined\FRH.abs" #-}
 type Customer = String
 
-{-# LINE 10 "frh\single_module\FRH.abs" #-}
+{-# LINE 10 "refined\FRH.abs" #-}
 data Degradation_States = S
-                        deriving (I'.Eq, I'.Show)
+                        deriving (I'.Eq, I'.Ord, I'.Show)
 
-{-# LINE 11 "frh\single_module\FRH.abs" #-}
+{-# LINE 11 "refined\FRH.abs" #-}
 type Id = Int
 
-{-# LINE 12 "frh\single_module\FRH.abs" #-}
+{-# LINE 12 "refined\FRH.abs" #-}
 type Request = Int
 
-{-# LINE 13 "frh\single_module\FRH.abs" #-}
+{-# LINE 13 "refined\FRH.abs" #-}
 type Response = Bool
 
-{-# LINE 14 "frh\single_module\FRH.abs" #-}
+{-# LINE 14 "refined\FRH.abs" #-}
 data ServiceType = FAS
                  | SUGGEST
                  | DM
-                 deriving (I'.Eq, I'.Show)
+                 deriving (I'.Eq, I'.Ord, I'.Show)
 
-{-# LINE 15 "frh\single_module\FRH.abs" #-}
+{-# LINE 15 "refined\FRH.abs" #-}
 data Config = Config_ !ServiceType !(List ResourceCapacities)
             deriving (I'.Eq, I'.Show)
 instances_ (Config_ _ a) = a
@@ -106,12 +106,12 @@ serviceType _
          (concatenate "Data constructor does not have accessor "
             "serviceType"))
 
-{-# LINE 16 "frh\single_module\FRH.abs" #-}
+{-# LINE 16 "refined\FRH.abs" #-}
 data State = RUNNING
            | STOP
-           deriving (I'.Eq, I'.Show)
+           deriving (I'.Eq, I'.Ord, I'.Show)
 
-{-# LINE 17 "frh\single_module\FRH.abs" #-}
+{-# LINE 17 "refined\FRH.abs" #-}
 data VMType = T2_MICRO
             | T2_SMALL
             | T2_MEDIUM
@@ -128,17 +128,17 @@ data VMType = T2_MICRO
             | C4_2XLARGE
             | C4_4XLARGE
             | C4_8XLARGE
-            deriving (I'.Eq, I'.Show, I'.Ord)
+            deriving (I'.Eq, I'.Ord, I'.Show)
 
-{-# LINE 18 "frh\single_module\FRH.abs" #-}
+{-# LINE 18 "refined\FRH.abs" #-}
 type ResourceCapacities = Map Resourcetype Rat
 
-{-# LINE 19 "frh\single_module\FRH.abs" #-}
+{-# LINE 19 "refined\FRH.abs" #-}
 data LBOp = INCR
           | DECR
-          deriving (I'.Eq, I'.Show)
+          deriving (I'.Eq, I'.Ord, I'.Show)
 
-{-# LINE 20 "frh\single_module\FRH.abs" #-}
+{-# LINE 20 "refined\FRH.abs" #-}
 data Rule = Rule_ !Int !Monitor
           deriving (I'.Eq, I'.Show)
 monitor_ (Rule_ _ a) = a
@@ -154,60 +154,60 @@ interval _
          (concatenate "Data constructor does not have accessor "
             "interval"))
 
-{-# LINE 21 "frh\single_module\FRH.abs" #-}
+{-# LINE 21 "refined\FRH.abs" #-}
 data Scale = UP
            | DOWN
-           deriving (I'.Eq, I'.Show)
+           deriving (I'.Eq, I'.Ord, I'.Show)
 
-{-# LINE 22 "frh\single_module\FRH.abs" #-}
+{-# LINE 22 "refined\FRH.abs" #-}
 type CustomerConfig = Pair Customer (List (Pair Config Int))
 
-{-# LINE 24 "frh\single_module\FRH.abs" #-}
+{-# LINE 24 "refined\FRH.abs" #-}
 data DeployParamSpecification = Req
                               | List !Int
                               | Default !String
                               | User_
                               | OptList !String
-                              deriving (I'.Eq, I'.Show)
+                              deriving (I'.Eq, I'.Ord, I'.Show)
 
-{-# LINE 25 "frh\single_module\FRH.abs" #-}
+{-# LINE 25 "refined\FRH.abs" #-}
 data DeployScenarioElement = MaxUse !Int
                            | Cost !String !Int
                            | Param !String !DeployParamSpecification
                            | Name !String
                            deriving (I'.Eq, I'.Show)
 
-{-# LINE 26 "frh\single_module\FRH.abs" #-}
+{-# LINE 26 "refined\FRH.abs" #-}
 type Deploy = List DeployScenarioElement
 
-{-# LINE 27 "frh\single_module\FRH.abs" #-}
+{-# LINE 27 "refined\FRH.abs" #-}
 type SmartDeploy = String
 
-{-# LINE 28 "frh\single_module\FRH.abs" #-}
+{-# LINE 28 "refined\FRH.abs" #-}
 type SmartDeployCloudProvider = String
 
 init :: _ => Id
-{-# LINE 34 "frh\single_module\FRH.abs" #-}
+{-# LINE 34 "refined\FRH.abs" #-}
 init = 1
 
 incr :: _ => Id -> Id
-{-# LINE 36 "frh\single_module\FRH.abs" #-}
+{-# LINE 36 "refined\FRH.abs" #-}
 incr id = (id + 1)
 
 cost :: _ => Request -> Int
-{-# LINE 38 "frh\single_module\FRH.abs" #-}
+{-# LINE 38 "refined\FRH.abs" #-}
 cost request = request
 
 success :: _ => Response
-{-# LINE 40 "frh\single_module\FRH.abs" #-}
+{-# LINE 40 "refined\FRH.abs" #-}
 success = True
 
 isSuccess :: _ => Response -> Bool
-{-# LINE 42 "frh\single_module\FRH.abs" #-}
+{-# LINE 42 "refined\FRH.abs" #-}
 isSuccess response = response
 
 vmTypesCollection :: _ => Set VMType
-{-# LINE 44 "frh\single_module\FRH.abs" #-}
+{-# LINE 44 "refined\FRH.abs" #-}
 vmTypesCollection
   = (set
        (T2_MICRO :
@@ -227,7 +227,7 @@ vmTypesCollection
                                                  (C4_4XLARGE : (C4_8XLARGE : [])))))))))))))))))
 
 vmResources :: _ => VMType -> ResourceCapacities
-{-# LINE 48 "frh\single_module\FRH.abs" #-}
+{-# LINE 48 "refined\FRH.abs" #-}
 vmResources v
   = case v of
         T2_MICRO -> (map (((Memory, 1)) : (((Speed, 1)) : [])))
@@ -250,7 +250,7 @@ vmResources v
         C4_8XLARGE -> (map (((Memory, 60)) : (((Speed, 36)) : [])))
 
 amazonInstances :: _ => Map String ResourceCapacities
-{-# LINE 68 "frh\single_module\FRH.abs" #-}
+{-# LINE 68 "refined\FRH.abs" #-}
 amazonInstances
   = (map
        ((("T2_MICRO", (map (((Memory, 1)) : (((Speed, 1)) : []))))) :
@@ -290,7 +290,7 @@ amazonInstances
                                                        : [])))))))))))))))))
 
 mapValue :: forall x a . _ => Map x a -> a -> Maybe x
-{-# LINE 75 "frh\single_module\FRH.abs" #-}
+{-# LINE 75 "refined\FRH.abs" #-}
 mapValue ss e
   = case ss of
         EmptyMap -> Nothing
@@ -299,7 +299,7 @@ mapValue ss e
                                _ -> (mapValue y e)
 
 removeFirst :: forall x . _ => List x -> x -> List x
-{-# LINE 84 "frh\single_module\FRH.abs" #-}
+{-# LINE 84 "refined\FRH.abs" #-}
 removeFirst list v
   = case list of
         [] -> []
@@ -307,7 +307,7 @@ removeFirst list v
         (x : vs) -> (x : (removeFirst vs v))
 
 inList :: forall x . _ => List x -> x -> Bool
-{-# LINE 91 "frh\single_module\FRH.abs" #-}
+{-# LINE 91 "refined\FRH.abs" #-}
 inList list v
   = case list of
         [] -> False
@@ -315,18 +315,18 @@ inList list v
         (_ : vs) -> (inList vs v)
 
 unique :: forall x . _ => List x -> Bool
-{-# LINE 98 "frh\single_module\FRH.abs" #-}
+{-# LINE 98 "refined\FRH.abs" #-}
 unique list
   = case list of
         [] -> True
         (v : vs) -> if (inList vs v) then False else (unique vs)
 
 add :: forall x . _ => List x -> x -> List x
-{-# LINE 104 "frh\single_module\FRH.abs" #-}
+{-# LINE 104 "refined\FRH.abs" #-}
 add list v = if (inList list v) then list else (v : list)
 
 toList :: forall x . _ => Set x -> List x
-{-# LINE 106 "frh\single_module\FRH.abs" #-}
+{-# LINE 106 "refined\FRH.abs" #-}
 toList s
   = case s of
         EmptySet -> []
@@ -334,7 +334,7 @@ toList s
 
 lookupService ::
                 _ => Map Config Int -> ServiceType -> Maybe (Pair Config Int)
-{-# LINE 112 "frh\single_module\FRH.abs" #-}
+{-# LINE 112 "refined\FRH.abs" #-}
 lookupService cs s
   = case cs of
         EmptyMap -> Nothing
@@ -346,14 +346,14 @@ lookupCustomerService ::
                         _ =>
                         Map Customer (Map Config Int) ->
                           Customer -> ServiceType -> Maybe (Pair Config Int)
-{-# LINE 119 "frh\single_module\FRH.abs" #-}
+{-# LINE 119 "refined\FRH.abs" #-}
 lookupCustomerService cs c s
   = case (lookupDefault cs c EmptyMap) of
         EmptyMap -> Nothing
         map -> (lookupService map s)
 
 removeLocalEndPoint :: _ => Map Config Int -> Int -> Map Config Int
-{-# LINE 125 "frh\single_module\FRH.abs" #-}
+{-# LINE 125 "refined\FRH.abs" #-}
 removeLocalEndPoint cs e
   = case cs of
         EmptyMap -> EmptyMap
@@ -365,7 +365,7 @@ removeGlobalEndPoint ::
                        _ =>
                        Map Customer (Map Config Int) ->
                          Int -> Map Customer (Map Config Int)
-{-# LINE 132 "frh\single_module\FRH.abs" #-}
+{-# LINE 132 "refined\FRH.abs" #-}
 removeGlobalEndPoint cs e
   = case cs of
         EmptyMap -> EmptyMap
@@ -377,7 +377,7 @@ removeGlobalEndPoint cs e
 
 keyPairs ::
          forall x y z . _ => Map x (Map y z) -> z -> Maybe (Pair x y)
-{-# LINE 141 "frh\single_module\FRH.abs" #-}
+{-# LINE 141 "refined\FRH.abs" #-}
 keyPairs map z
   = case map of
         EmptyMap -> Nothing
@@ -389,7 +389,7 @@ updateConfig ::
                _ =>
                Map Customer (Map Config Int) ->
                  Customer -> Config -> Config -> Map Customer (Map Config Int)
-{-# LINE 150 "frh\single_module\FRH.abs" #-}
+{-# LINE 150 "refined\FRH.abs" #-}
 updateConfig cs c o n
   = case (lookup cs c) of
         Nothing -> cs
@@ -398,7 +398,7 @@ updateConfig cs c o n
                        Just e -> (put cs c (put (removeKey cm o) n e))
 
 getHyphenPosition :: _ => String -> Int -> List Int
-{-# LINE 159 "frh\single_module\FRH.abs" #-}
+{-# LINE 159 "refined\FRH.abs" #-}
 getHyphenPosition s v
   = if (s == "") then [] else
       if ((substr s 0 1) == "-") then
@@ -410,7 +410,7 @@ getHyphenPosition s v
            ((I'.fromIntegral v) + 1))
 
 getInstanceName :: _ => String -> String
-{-# LINE 162 "frh\single_module\FRH.abs" #-}
+{-# LINE 162 "refined\FRH.abs" #-}
 getInstanceName s
   = (\ ls ->
        if ((length ls) > 1) then
@@ -419,7 +419,7 @@ getInstanceName s
       ((getHyphenPosition s 0) :: List Int)
 
 strContains :: _ => String -> String -> Bool
-{-# LINE 165 "frh\single_module\FRH.abs" #-}
+{-# LINE 165 "refined\FRH.abs" #-}
 strContains s substring
   = (\ l1 ->
        (\ l2 ->
@@ -431,7 +431,7 @@ strContains s substring
 
 filter_lists_by_substr ::
                        forall a . _ => List a -> List String -> String -> List a
-{-# LINE 168 "frh\single_module\FRH.abs" #-}
+{-# LINE 168 "refined\FRH.abs" #-}
 filter_lists_by_substr xs ys substring
   = case ys of
         [] -> []
@@ -440,27 +440,27 @@ filter_lists_by_substr xs ys substring
                       (filter_lists_by_substr (tail xs) zs substring)
 
 fst_list :: forall a b . _ => List (Pair a b) -> List a
-{-# LINE 174 "frh\single_module\FRH.abs" #-}
+{-# LINE 174 "refined\FRH.abs" #-}
 fst_list ls
   = case ls of
         [] -> []
         (x : xs) -> ((fst x) : (fst_list xs))
 
 snd_list :: forall a b . _ => List (Pair a b) -> List b
-{-# LINE 180 "frh\single_module\FRH.abs" #-}
+{-# LINE 180 "refined\FRH.abs" #-}
 snd_list ls
   = case ls of
         [] -> []
         (x : xs) -> ((snd x) : (snd_list xs))
 
 takeFromSet :: forall a . _ => Set a -> a
-{-# LINE 193 "frh\single_module\FRH.abs" #-}
+{-# LINE 193 "refined\FRH.abs" #-}
 takeFromSet ss
   = case ss of
         Insert e _ -> e
 
 inListAll :: forall x . _ => List x -> List x -> Bool
-{-# LINE 198 "frh\single_module\FRH.abs" #-}
+{-# LINE 198 "refined\FRH.abs" #-}
 inListAll ls ms
   = case ms of
         [] -> True
@@ -469,28 +469,28 @@ inListAll ls ms
                        mm)
 
 removeAllinList :: forall x . _ => List x -> List x -> List x
-{-# LINE 204 "frh\single_module\FRH.abs" #-}
+{-# LINE 204 "refined\FRH.abs" #-}
 removeAllinList ls ms
   = case ms of
         [] -> []
         (m : mm) -> (removeAllinList (without ls m) mm)
 
 removeAll :: forall x y . _ => Map x y -> List x -> Map x y
-{-# LINE 210 "frh\single_module\FRH.abs" #-}
+{-# LINE 210 "refined\FRH.abs" #-}
 removeAll map xs
   = case xs of
         [] -> map
         (x : nx) -> (removeAll (removeKey map x) nx)
 
 difference_ :: forall x . _ => List x -> List x -> List x
-{-# LINE 216 "frh\single_module\FRH.abs" #-}
+{-# LINE 216 "refined\FRH.abs" #-}
 difference_ xs ys
   = case ys of
         [] -> []
         (y : ny) -> (difference_ (without xs y) ny)
 
 lookupMap :: forall x y . _ => Map x y -> List x -> List y
-{-# LINE 222 "frh\single_module\FRH.abs" #-}
+{-# LINE 222 "refined\FRH.abs" #-}
 lookupMap map xs
   = case xs of
         [] -> []
@@ -500,7 +500,7 @@ lookupMap map xs
 
 lookupTwoMaps ::
               forall x y z . _ => Map x (List y) -> Map y z -> x -> List z
-{-# LINE 231 "frh\single_module\FRH.abs" #-}
+{-# LINE 231 "refined\FRH.abs" #-}
 lookupTwoMaps m1 m2 x
   = case (lookup m1 x) of
         Nothing -> []
@@ -508,7 +508,7 @@ lookupTwoMaps m1 m2 x
 
 lookupAllSecond ::
                 forall w x y . _ => Map w (Map x (List y)) -> x -> List y
-{-# LINE 238 "frh\single_module\FRH.abs" #-}
+{-# LINE 238 "refined\FRH.abs" #-}
 lookupAllSecond map x
   = case map of
         EmptyMap -> []
@@ -516,21 +516,21 @@ lookupAllSecond map x
                                      (lookupAllSecond ms x))
 
 decr1 :: forall y . _ => Map Int y -> Map Int y
-{-# LINE 244 "frh\single_module\FRH.abs" #-}
+{-# LINE 244 "refined\FRH.abs" #-}
 decr1 map
   = case map of
         EmptyMap -> EmptyMap
         InsertAssoc (w, y) ms -> (InsertAssoc (((w - 1), y)) (decr1 ms))
 
 decr :: forall x y . _ => Map x (Map Int y) -> Map x (Map Int y)
-{-# LINE 251 "frh\single_module\FRH.abs" #-}
+{-# LINE 251 "refined\FRH.abs" #-}
 decr map
   = case map of
         EmptyMap -> EmptyMap
         InsertAssoc (w, ns) ms -> (InsertAssoc ((w, (decr1 ns))) (decr ms))
 
 reset :: forall x y . _ => Map x (Map x y) -> x -> Map x (Map x y)
-{-# LINE 257 "frh\single_module\FRH.abs" #-}
+{-# LINE 257 "refined\FRH.abs" #-}
 reset map x
   = case map of
         EmptyMap -> EmptyMap
@@ -539,12 +539,12 @@ reset map x
                                       Just y -> (InsertAssoc ((k, (put (removeKey ns x) k y)))
                                                    (reset ms x))
 
-{-# LINE 270 "frh\single_module\FRH.abs" #-}
+{-# LINE 270 "refined\FRH.abs" #-}
 class Monitor' a where
-        {-# LINE 271 "frh\single_module\FRH.abs" #-}
+        {-# LINE 271 "refined\FRH.abs" #-}
         monitor :: Obj' a -> ABS' Unit
         
-        {-# LINE 272 "frh\single_module\FRH.abs" #-}
+        {-# LINE 272 "refined\FRH.abs" #-}
         metricHistory ::
                       Obj' a -> ABS' (List (Pair Time (List (Pair String Rat))))
 
@@ -564,9 +564,9 @@ instance Monitor' Null' where
 instance Monitor' a => Sub' (Obj' a) Monitor where
         up' = Monitor
 
-{-# LINE 274 "frh\single_module\FRH.abs" #-}
+{-# LINE 274 "refined\FRH.abs" #-}
 class Monitor' a => DegradationMonitorIf' a where
-        {-# LINE 275 "frh\single_module\FRH.abs" #-}
+        {-# LINE 275 "refined\FRH.abs" #-}
         notify_query_Mon :: Time -> String -> Rat -> Obj' a -> ABS' Unit
 
 data DegradationMonitorIf = forall a . DegradationMonitorIf' a =>
@@ -590,7 +590,7 @@ instance DegradationMonitorIf' a => Sub' (Obj' a)
 instance Sub' DegradationMonitorIf Monitor where
         up' (DegradationMonitorIf x') = Monitor x'
 
-{-# LINE 278 "frh\single_module\FRH.abs" #-}
+{-# LINE 278 "refined\FRH.abs" #-}
 data DegradationMonitorImpl = DegradationMonitorImpl{deployer'DegradationMonitorImpl
                                                      :: DeployerIF,
                                                      metric'DegradationMonitorImpl ::
@@ -610,7 +610,7 @@ smart'DegradationMonitorImpl deployer'this
 
 init'DegradationMonitorImpl ::
                             Obj' DegradationMonitorImpl -> I'.IO ()
-{-# LINE 278 "frh\single_module\FRH.abs" #-}
+{-# LINE 278 "refined\FRH.abs" #-}
 init'DegradationMonitorImpl this@(Obj' this' _ thisDC)
   = do I'.writeIORef this' =<<
          ((\ this'' ->
@@ -643,7 +643,7 @@ instance DegradationMonitorIf' DegradationMonitorImpl where
                        =<< I'.readIORef this'))
 
 instance Monitor' DegradationMonitorImpl where
-        monitor this@(Obj' this' _ thisDC) = do I'.lift (println "monitor")
+        monitor this@(Obj' this' _ thisDC) = I'.pure ()
         metricHistory this@(Obj' this' _ thisDC)
           = do copy ::
                  IORef' (List (Pair Time (List (Pair String Rat)))) <- I'.lift
@@ -658,9 +658,9 @@ instance Monitor' DegradationMonitorImpl where
                        I'.readIORef this'))
                I'.lift (I'.readIORef copy)
 
-{-# LINE 306 "frh\single_module\FRH.abs" #-}
+{-# LINE 317 "refined\FRH.abs" #-}
 class DegradationMetricIf' a where
-        {-# LINE 307 "frh\single_module\FRH.abs" #-}
+        {-# LINE 318 "refined\FRH.abs" #-}
         notify_query_Met ::
                          Time -> String -> Rat -> Obj' a -> ABS' (List (Pair String Rat))
 
@@ -682,7 +682,7 @@ instance DegradationMetricIf' a => Sub' (Obj' a)
          DegradationMetricIf where
         up' = DegradationMetricIf
 
-{-# LINE 310 "frh\single_module\FRH.abs" #-}
+{-# LINE 321 "refined\FRH.abs" #-}
 data DegradationMetricImpl = DegradationMetricImpl{cnt'DegradationMetricImpl
                                                    :: Map Customer Int,
                                                    curState'DegradationMetricImpl ::
@@ -722,7 +722,7 @@ smart'DegradationMetricImpl
 
 init'DegradationMetricImpl ::
                            Obj' DegradationMetricImpl -> I'.IO ()
-{-# LINE 310 "frh\single_module\FRH.abs" #-}
+{-# LINE 321 "refined\FRH.abs" #-}
 init'DegradationMetricImpl this@(Obj' this' _ thisDC) = I'.pure ()
 
 instance DegradationMetricIf' DegradationMetricImpl where
@@ -778,7 +778,7 @@ instance DegradationMetricIf' DegradationMetricImpl where
                                                           (I'.fromIntegral <$!> I'.readIORef old200)
                                                           <*>
                                                           do of' <- ((>) <$!> I'.pure procTime <*>
-                                                                       I'.pure 200)
+                                                                       I'.pure 20)
                                                              case of' of
                                                                  True -> I'.pure 1
                                                                  False -> I'.pure 0))
@@ -788,7 +788,7 @@ instance DegradationMetricIf' DegradationMetricImpl where
                                                           (I'.fromIntegral <$!> I'.readIORef old500)
                                                           <*>
                                                           do of' <- ((>) <$!> I'.pure procTime <*>
-                                                                       I'.pure 500)
+                                                                       I'.pure 50)
                                                              case of' of
                                                                  True -> I'.pure 1
                                                                  False -> I'.pure 0))
@@ -874,58 +874,58 @@ instance DegradationMetricIf' DegradationMetricImpl where
                  ((\ this'' -> I'.pure (slowQpct'DegradationMetricImpl this'')) =<<
                     I'.readIORef this')
 
-{-# LINE 377 "frh\single_module\FRH.abs" #-}
+{-# LINE 388 "refined\FRH.abs" #-}
 class SmartDeployInterface' a where
-        {-# LINE 378 "frh\single_module\FRH.abs" #-}
+        {-# LINE 389 "refined\FRH.abs" #-}
         getEndPoint ::
                     Obj' a -> ABS' (List (Pair EndPoint DeploymentComponent))
         
-        {-# LINE 379 "frh\single_module\FRH.abs" #-}
+        {-# LINE 390 "refined\FRH.abs" #-}
         getIQueryService ::
                          Obj' a -> ABS' (List (Pair IQueryService DeploymentComponent))
         
-        {-# LINE 380 "frh\single_module\FRH.abs" #-}
+        {-# LINE 391 "refined\FRH.abs" #-}
         getService ::
                    Obj' a -> ABS' (List (Pair Service DeploymentComponent))
         
-        {-# LINE 381 "frh\single_module\FRH.abs" #-}
+        {-# LINE 392 "refined\FRH.abs" #-}
         getServiceProvider ::
                            Obj' a -> ABS' (List (Pair ServiceProvider DeploymentComponent))
         
-        {-# LINE 382 "frh\single_module\FRH.abs" #-}
+        {-# LINE 393 "refined\FRH.abs" #-}
         getDeploymentAgent ::
                            Obj' a -> ABS' (List (Pair DeploymentAgent DeploymentComponent))
         
-        {-# LINE 383 "frh\single_module\FRH.abs" #-}
+        {-# LINE 394 "refined\FRH.abs" #-}
         getLoadBalancerService ::
                                Obj' a ->
                                  ABS' (List (Pair LoadBalancerService DeploymentComponent))
         
-        {-# LINE 384 "frh\single_module\FRH.abs" #-}
+        {-# LINE 395 "refined\FRH.abs" #-}
         getLoadBalancerEndPoint ::
                                 Obj' a ->
                                   ABS' (List (Pair LoadBalancerEndPoint DeploymentComponent))
         
-        {-# LINE 385 "frh\single_module\FRH.abs" #-}
+        {-# LINE 396 "refined\FRH.abs" #-}
         getDeploymentService ::
                              Obj' a -> ABS' (List (Pair DeploymentService DeploymentComponent))
         
-        {-# LINE 386 "frh\single_module\FRH.abs" #-}
+        {-# LINE 397 "refined\FRH.abs" #-}
         getPlatformService ::
                            Obj' a -> ABS' (List (Pair PlatformService DeploymentComponent))
         
-        {-# LINE 387 "frh\single_module\FRH.abs" #-}
+        {-# LINE 398 "refined\FRH.abs" #-}
         getMonitorPlatformService ::
                                   Obj' a ->
                                     ABS' (List (Pair MonitorPlatformService DeploymentComponent))
         
-        {-# LINE 388 "frh\single_module\FRH.abs" #-}
+        {-# LINE 399 "refined\FRH.abs" #-}
         getDeploymentComponent :: Obj' a -> ABS' (List DeploymentComponent)
         
-        {-# LINE 389 "frh\single_module\FRH.abs" #-}
+        {-# LINE 400 "refined\FRH.abs" #-}
         deploy :: Obj' a -> ABS' Unit
         
-        {-# LINE 390 "frh\single_module\FRH.abs" #-}
+        {-# LINE 401 "refined\FRH.abs" #-}
         undeploy :: Obj' a -> ABS' Unit
 
 data SmartDeployInterface = forall a . SmartDeployInterface' a =>
@@ -958,7 +958,7 @@ instance SmartDeployInterface' a => Sub' (Obj' a)
          SmartDeployInterface where
         up' = SmartDeployInterface
 
-{-# LINE 392 "frh\single_module\FRH.abs" #-}
+{-# LINE 403 "refined\FRH.abs" #-}
 data AddQueryDeployer = AddQueryDeployer{cloudProvider'AddQueryDeployer
                                          :: CloudProvider,
                                          deploymentServiceObjEu'AddQueryDeployer ::
@@ -1053,7 +1053,7 @@ smart'AddQueryDeployer cloudProvider'this platformServiceObjEu'this
       ([] :: List (Pair EndPoint DeploymentComponent))
 
 init'AddQueryDeployer :: Obj' AddQueryDeployer -> I'.IO ()
-{-# LINE 392 "frh\single_module\FRH.abs" #-}
+{-# LINE 403 "refined\FRH.abs" #-}
 init'AddQueryDeployer this@(Obj' this' _ thisDC) = I'.pure ()
 
 instance SmartDeployInterface' AddQueryDeployer where
@@ -1112,7 +1112,7 @@ instance SmartDeployInterface' AddQueryDeployer where
                                                                     ((\ (CloudProvider obj') ->
                                                                         sync' this obj'
                                                                           (prelaunchInstanceNamed
-                                                                             "m4_large_us2"))
+                                                                             "m4_xlarge_us2"))
                                                                        (cloudProvider'AddQueryDeployer
                                                                           this'')))
                                                                  =<< I'.lift (I'.readIORef this')
@@ -1128,7 +1128,7 @@ instance SmartDeployInterface' AddQueryDeployer where
                                                                     ((\ (CloudProvider obj') ->
                                                                         sync' this obj'
                                                                           (prelaunchInstanceNamed
-                                                                             "m4_large_us1"))
+                                                                             "m4_xlarge_us1"))
                                                                        (cloudProvider'AddQueryDeployer
                                                                           this'')))
                                                                  =<< I'.lift (I'.readIORef this')
@@ -1401,7 +1401,7 @@ instance SmartDeployInterface' AddQueryDeployer where
                                        (tail (ls_DeploymentComponent'AddQueryDeployer this''))})
                              <$!> I'.readIORef this')))
 
-{-# LINE 489 "frh\single_module\FRH.abs" #-}
+{-# LINE 500 "refined\FRH.abs" #-}
 data MainSmartDeployer = MainSmartDeployer{cloudProvider'MainSmartDeployer
                                            :: CloudProvider,
                                            ls_DeploymentAgent'MainSmartDeployer ::
@@ -1464,7 +1464,7 @@ smart'MainSmartDeployer cloudProvider'this
       ([] :: List (Pair EndPoint DeploymentComponent))
 
 init'MainSmartDeployer :: Obj' MainSmartDeployer -> I'.IO ()
-{-# LINE 489 "frh\single_module\FRH.abs" #-}
+{-# LINE 500 "refined\FRH.abs" #-}
 init'MainSmartDeployer this@(Obj' this' _ thisDC) = I'.pure ()
 
 instance SmartDeployInterface' MainSmartDeployer where
@@ -2398,12 +2398,12 @@ instance SmartDeployInterface' MainSmartDeployer where
                                        (tail (ls_DeploymentComponent'MainSmartDeployer this''))})
                              <$!> I'.readIORef this')))
 
-{-# LINE 662 "frh\single_module\FRH.abs" #-}
+{-# LINE 673 "refined\FRH.abs" #-}
 class DeployerIF' a where
-        {-# LINE 663 "frh\single_module\FRH.abs" #-}
+        {-# LINE 674 "refined\FRH.abs" #-}
         scaleUp :: Obj' a -> ABS' Unit
         
-        {-# LINE 664 "frh\single_module\FRH.abs" #-}
+        {-# LINE 675 "refined\FRH.abs" #-}
         scaleDown :: Obj' a -> ABS' Unit
 
 data DeployerIF = forall a . DeployerIF' a => DeployerIF (Obj' a)
@@ -2422,13 +2422,13 @@ instance DeployerIF' Null' where
 instance DeployerIF' a => Sub' (Obj' a) DeployerIF where
         up' = DeployerIF
 
-{-# LINE 667 "frh\single_module\FRH.abs" #-}
+{-# LINE 678 "refined\FRH.abs" #-}
 class InfrastructureService' a where
-        {-# LINE 668 "frh\single_module\FRH.abs" #-}
+        {-# LINE 679 "refined\FRH.abs" #-}
         acquireInstance ::
                         Id -> VMType -> Obj' a -> ABS' DeploymentComponent
         
-        {-# LINE 669 "frh\single_module\FRH.abs" #-}
+        {-# LINE 680 "refined\FRH.abs" #-}
         release :: DeploymentComponent -> Obj' a -> ABS' Unit
 
 data InfrastructureService = forall a . InfrastructureService' a =>
@@ -2450,15 +2450,15 @@ instance InfrastructureService' a => Sub' (Obj' a)
          InfrastructureService where
         up' = InfrastructureService
 
-{-# LINE 672 "frh\single_module\FRH.abs" #-}
+{-# LINE 683 "refined\FRH.abs" #-}
 class EndPoint' a where
-        {-# LINE 673 "frh\single_module\FRH.abs" #-}
+        {-# LINE 684 "refined\FRH.abs" #-}
         invoke :: Request -> Obj' a -> ABS' Response
         
-        {-# LINE 674 "frh\single_module\FRH.abs" #-}
+        {-# LINE 685 "refined\FRH.abs" #-}
         setStatus :: State -> Obj' a -> ABS' Unit
         
-        {-# LINE 675 "frh\single_module\FRH.abs" #-}
+        {-# LINE 686 "refined\FRH.abs" #-}
         getStatus :: Obj' a -> ABS' State
 
 data EndPoint = forall a . EndPoint' a => EndPoint (Obj' a)
@@ -2478,15 +2478,15 @@ instance EndPoint' Null' where
 instance EndPoint' a => Sub' (Obj' a) EndPoint where
         up' = EndPoint
 
-{-# LINE 678 "frh\single_module\FRH.abs" #-}
+{-# LINE 689 "refined\FRH.abs" #-}
 class EndPoint' a => LoadBalancerEndPoint' a where
-        {-# LINE 679 "frh\single_module\FRH.abs" #-}
+        {-# LINE 690 "refined\FRH.abs" #-}
         removeLBE :: Service -> Obj' a -> ABS' Bool
         
-        {-# LINE 680 "frh\single_module\FRH.abs" #-}
+        {-# LINE 691 "refined\FRH.abs" #-}
         addLBE :: Service -> Obj' a -> ABS' Bool
         
-        {-# LINE 681 "frh\single_module\FRH.abs" #-}
+        {-# LINE 692 "refined\FRH.abs" #-}
         getServices :: Obj' a -> ABS' (List Service)
 
 data LoadBalancerEndPoint = forall a . LoadBalancerEndPoint' a =>
@@ -2512,36 +2512,36 @@ instance LoadBalancerEndPoint' a => Sub' (Obj' a)
 instance Sub' LoadBalancerEndPoint EndPoint where
         up' (LoadBalancerEndPoint x') = EndPoint x'
 
-{-# LINE 684 "frh\single_module\FRH.abs" #-}
+{-# LINE 695 "refined\FRH.abs" #-}
 class EndPoint' a => Service' a where
-        {-# LINE 685 "frh\single_module\FRH.abs" #-}
+        {-# LINE 696 "refined\FRH.abs" #-}
         getServiceId :: Obj' a -> ABS' Id
         
-        {-# LINE 686 "frh\single_module\FRH.abs" #-}
+        {-# LINE 697 "refined\FRH.abs" #-}
         setServiceId :: Id -> Obj' a -> ABS' Unit
         
-        {-# LINE 687 "frh\single_module\FRH.abs" #-}
+        {-# LINE 698 "refined\FRH.abs" #-}
         getServiceType :: Obj' a -> ABS' ServiceType
         
-        {-# LINE 688 "frh\single_module\FRH.abs" #-}
+        {-# LINE 699 "refined\FRH.abs" #-}
         getCustomer :: Obj' a -> ABS' Customer
         
-        {-# LINE 689 "frh\single_module\FRH.abs" #-}
+        {-# LINE 700 "refined\FRH.abs" #-}
         getLatency :: Obj' a -> ABS' Int
         
-        {-# LINE 690 "frh\single_module\FRH.abs" #-}
+        {-# LINE 701 "refined\FRH.abs" #-}
         getRequestCount :: Obj' a -> ABS' Int
         
-        {-# LINE 691 "frh\single_module\FRH.abs" #-}
+        {-# LINE 702 "refined\FRH.abs" #-}
         getCPU :: Obj' a -> ABS' Int
         
-        {-# LINE 692 "frh\single_module\FRH.abs" #-}
+        {-# LINE 703 "refined\FRH.abs" #-}
         getBandwidth :: Obj' a -> ABS' Int
         
-        {-# LINE 693 "frh\single_module\FRH.abs" #-}
+        {-# LINE 704 "refined\FRH.abs" #-}
         getMemory :: Obj' a -> ABS' Int
         
-        {-# LINE 694 "frh\single_module\FRH.abs" #-}
+        {-# LINE 705 "refined\FRH.abs" #-}
         getResource :: Resourcetype -> Obj' a -> ABS' InfRat
 
 data Service = forall a . Service' a => Service (Obj' a)
@@ -2571,22 +2571,22 @@ instance Service' a => Sub' (Obj' a) Service where
 instance Sub' Service EndPoint where
         up' (Service x') = EndPoint x'
 
-{-# LINE 697 "frh\single_module\FRH.abs" #-}
+{-# LINE 708 "refined\FRH.abs" #-}
 class DeploymentService' a where
-        {-# LINE 698 "frh\single_module\FRH.abs" #-}
+        {-# LINE 709 "refined\FRH.abs" #-}
         installDS ::
                   Customer -> ServiceType -> Id -> VMType -> Obj' a -> ABS' Service
         
-        {-# LINE 699 "frh\single_module\FRH.abs" #-}
+        {-# LINE 710 "refined\FRH.abs" #-}
         uninstallDS :: Id -> Obj' a -> ABS' Unit
         
-        {-# LINE 700 "frh\single_module\FRH.abs" #-}
+        {-# LINE 711 "refined\FRH.abs" #-}
         startDS :: Id -> Obj' a -> ABS' Unit
         
-        {-# LINE 701 "frh\single_module\FRH.abs" #-}
+        {-# LINE 712 "refined\FRH.abs" #-}
         stopDS :: Id -> Obj' a -> ABS' Unit
         
-        {-# LINE 702 "frh\single_module\FRH.abs" #-}
+        {-# LINE 713 "refined\FRH.abs" #-}
         addDS :: DeploymentAgent -> Obj' a -> ABS' Unit
 
 data DeploymentService = forall a . DeploymentService' a =>
@@ -2610,21 +2610,21 @@ instance DeploymentService' a => Sub' (Obj' a) DeploymentService
          where
         up' = DeploymentService
 
-{-# LINE 705 "frh\single_module\FRH.abs" #-}
+{-# LINE 716 "refined\FRH.abs" #-}
 class DeploymentAgent' a where
-        {-# LINE 706 "frh\single_module\FRH.abs" #-}
+        {-# LINE 717 "refined\FRH.abs" #-}
         installDA :: Service -> Obj' a -> ABS' Unit
         
-        {-# LINE 707 "frh\single_module\FRH.abs" #-}
+        {-# LINE 718 "refined\FRH.abs" #-}
         uninstallDA :: Obj' a -> ABS' Unit
         
-        {-# LINE 708 "frh\single_module\FRH.abs" #-}
+        {-# LINE 719 "refined\FRH.abs" #-}
         startDA :: Obj' a -> ABS' Unit
         
-        {-# LINE 709 "frh\single_module\FRH.abs" #-}
+        {-# LINE 720 "refined\FRH.abs" #-}
         stopDA :: Obj' a -> ABS' Unit
         
-        {-# LINE 710 "frh\single_module\FRH.abs" #-}
+        {-# LINE 721 "refined\FRH.abs" #-}
         getServiceDA :: Obj' a -> ABS' Service
 
 data DeploymentAgent = forall a . DeploymentAgent' a =>
@@ -2647,37 +2647,37 @@ instance DeploymentAgent' Null' where
 instance DeploymentAgent' a => Sub' (Obj' a) DeploymentAgent where
         up' = DeploymentAgent
 
-{-# LINE 713 "frh\single_module\FRH.abs" #-}
+{-# LINE 724 "refined\FRH.abs" #-}
 class LoadBalancerService' a where
-        {-# LINE 714 "frh\single_module\FRH.abs" #-}
+        {-# LINE 725 "refined\FRH.abs" #-}
         disable :: Id -> Obj' a -> ABS' Bool
         
-        {-# LINE 715 "frh\single_module\FRH.abs" #-}
+        {-# LINE 726 "refined\FRH.abs" #-}
         enable :: Id -> Obj' a -> ABS' Bool
         
-        {-# LINE 716 "frh\single_module\FRH.abs" #-}
+        {-# LINE 727 "refined\FRH.abs" #-}
         create :: List Service -> Int -> Obj' a -> ABS' Bool
         
-        {-# LINE 717 "frh\single_module\FRH.abs" #-}
+        {-# LINE 728 "refined\FRH.abs" #-}
         addLBS :: Int -> LoadBalancerEndPoint -> Obj' a -> ABS' Bool
         
-        {-# LINE 718 "frh\single_module\FRH.abs" #-}
+        {-# LINE 729 "refined\FRH.abs" #-}
         removeLBS :: Id -> Obj' a -> ABS' Bool
         
-        {-# LINE 719 "frh\single_module\FRH.abs" #-}
+        {-# LINE 730 "refined\FRH.abs" #-}
         getEndPointId :: LoadBalancerEndPoint -> Obj' a -> ABS' (Maybe Id)
         
-        {-# LINE 720 "frh\single_module\FRH.abs" #-}
+        {-# LINE 731 "refined\FRH.abs" #-}
         getEndPointById ::
                         Int -> Obj' a -> ABS' (Maybe LoadBalancerEndPoint)
         
-        {-# LINE 721 "frh\single_module\FRH.abs" #-}
+        {-# LINE 732 "refined\FRH.abs" #-}
         getEndPointIdsByService :: Service -> Obj' a -> ABS' (List Id)
         
-        {-# LINE 722 "frh\single_module\FRH.abs" #-}
+        {-# LINE 733 "refined\FRH.abs" #-}
         decrease :: Id -> List Service -> Obj' a -> ABS' Bool
         
-        {-# LINE 723 "frh\single_module\FRH.abs" #-}
+        {-# LINE 734 "refined\FRH.abs" #-}
         increase :: Id -> List Service -> Obj' a -> ABS' Bool
 
 data LoadBalancerService = forall a . LoadBalancerService' a =>
@@ -2707,12 +2707,12 @@ instance LoadBalancerService' a => Sub' (Obj' a)
          LoadBalancerService where
         up' = LoadBalancerService
 
-{-# LINE 726 "frh\single_module\FRH.abs" #-}
+{-# LINE 737 "refined\FRH.abs" #-}
 class PlatformService' a where
-        {-# LINE 727 "frh\single_module\FRH.abs" #-}
+        {-# LINE 738 "refined\FRH.abs" #-}
         createService :: Config -> Customer -> Obj' a -> ABS' Id
         
-        {-# LINE 728 "frh\single_module\FRH.abs" #-}
+        {-# LINE 739 "refined\FRH.abs" #-}
         removeService :: Id -> Obj' a -> ABS' Unit
 
 data PlatformService = forall a . PlatformService' a =>
@@ -2732,33 +2732,33 @@ instance PlatformService' Null' where
 instance PlatformService' a => Sub' (Obj' a) PlatformService where
         up' = PlatformService
 
-{-# LINE 731 "frh\single_module\FRH.abs" #-}
+{-# LINE 742 "refined\FRH.abs" #-}
 class PlatformService' a => MonitorPlatformService' a where
-        {-# LINE 732 "frh\single_module\FRH.abs" #-}
+        {-# LINE 743 "refined\FRH.abs" #-}
         incrService :: Id -> List ResourceCapacities -> Obj' a -> ABS' Unit
         
-        {-# LINE 733 "frh\single_module\FRH.abs" #-}
+        {-# LINE 744 "refined\FRH.abs" #-}
         decrService :: Id -> List Id -> Obj' a -> ABS' Unit
         
-        {-# LINE 734 "frh\single_module\FRH.abs" #-}
+        {-# LINE 745 "refined\FRH.abs" #-}
         getEndPoints :: Obj' a -> ABS' (List Id)
         
-        {-# LINE 735 "frh\single_module\FRH.abs" #-}
+        {-# LINE 746 "refined\FRH.abs" #-}
         getServiceMPS :: Id -> Obj' a -> ABS' (Maybe Service)
         
-        {-# LINE 736 "frh\single_module\FRH.abs" #-}
+        {-# LINE 747 "refined\FRH.abs" #-}
         getServiceIds :: Id -> Obj' a -> ABS' (List Id)
         
-        {-# LINE 737 "frh\single_module\FRH.abs" #-}
+        {-# LINE 748 "refined\FRH.abs" #-}
         alterResource :: Id -> Resourcetype -> Rat -> Obj' a -> ABS' Unit
         
-        {-# LINE 738 "frh\single_module\FRH.abs" #-}
+        {-# LINE 749 "refined\FRH.abs" #-}
         addEndPoint :: LoadBalancerEndPoint -> Obj' a -> ABS' Id
         
-        {-# LINE 739 "frh\single_module\FRH.abs" #-}
+        {-# LINE 750 "refined\FRH.abs" #-}
         removeEndPoint :: LoadBalancerEndPoint -> Obj' a -> ABS' Id
         
-        {-# LINE 740 "frh\single_module\FRH.abs" #-}
+        {-# LINE 751 "refined\FRH.abs" #-}
         addServiceInstance :: Service -> Obj' a -> ABS' Id
 
 data MonitorPlatformService = forall a .
@@ -2790,32 +2790,12 @@ instance MonitorPlatformService' a => Sub' (Obj' a)
 instance Sub' MonitorPlatformService PlatformService where
         up' (MonitorPlatformService x') = PlatformService x'
 
-{-# LINE 743 "frh\single_module\FRH.abs" #-}
-class User' a where
-        {-# LINE 744 "frh\single_module\FRH.abs" #-}
-        use :: EndPoint -> Int -> Int -> Obj' a -> ABS' Unit
-
-data User = forall a . User' a => User (Obj' a)
-
-instance I'.Show User where
-        show _ = "User"
-
-instance I'.Eq User where
-        User (Obj' ref1' _ _) == User (Obj' ref2' _ _)
-          = ref1' == I'.unsafeCoerce ref2'
-
-instance User' Null' where
-        use = I'.undefined
-
-instance User' a => Sub' (Obj' a) User where
-        up' = User
-
-{-# LINE 747 "frh\single_module\FRH.abs" #-}
+{-# LINE 758 "refined\FRH.abs" #-}
 class MonitoringService' a where
-        {-# LINE 748 "frh\single_module\FRH.abs" #-}
+        {-# LINE 759 "refined\FRH.abs" #-}
         addMS :: Rule -> Obj' a -> ABS' Unit
         
-        {-# LINE 749 "frh\single_module\FRH.abs" #-}
+        {-# LINE 760 "refined\FRH.abs" #-}
         removeMS :: Rule -> Obj' a -> ABS' Unit
 
 data MonitoringService = forall a . MonitoringService' a =>
@@ -2836,12 +2816,12 @@ instance MonitoringService' a => Sub' (Obj' a) MonitoringService
          where
         up' = MonitoringService
 
-{-# LINE 752 "frh\single_module\FRH.abs" #-}
+{-# LINE 763 "refined\FRH.abs" #-}
 class ServiceProvider' a where
-        {-# LINE 753 "frh\single_module\FRH.abs" #-}
+        {-# LINE 764 "refined\FRH.abs" #-}
         addCustomer :: Config -> Customer -> Obj' a -> ABS' EndPoint
         
-        {-# LINE 754 "frh\single_module\FRH.abs" #-}
+        {-# LINE 765 "refined\FRH.abs" #-}
         removeCustomer :: Config -> Customer -> Obj' a -> ABS' Unit
 
 data ServiceProvider = forall a . ServiceProvider' a =>
@@ -2861,7 +2841,7 @@ instance ServiceProvider' Null' where
 instance ServiceProvider' a => Sub' (Obj' a) ServiceProvider where
         up' = ServiceProvider
 
-{-# LINE 757 "frh\single_module\FRH.abs" #-}
+{-# LINE 768 "refined\FRH.abs" #-}
 class Item' a
 
 data Item = forall a . Item' a => Item (Obj' a)
@@ -2878,9 +2858,9 @@ instance Item' Null'
 instance Item' a => Sub' (Obj' a) Item where
         up' = Item
 
-{-# LINE 761 "frh\single_module\FRH.abs" #-}
+{-# LINE 772 "refined\FRH.abs" #-}
 class Service' a => IQueryService' a where
-        {-# LINE 762 "frh\single_module\FRH.abs" #-}
+        {-# LINE 773 "refined\FRH.abs" #-}
         doQuery :: String -> Obj' a -> ABS' (List Item)
 
 data IQueryService = forall a . IQueryService' a =>
@@ -2905,10 +2885,11 @@ instance Sub' IQueryService EndPoint where
 instance Sub' IQueryService Service where
         up' (IQueryService x') = Service x'
 
-{-# LINE 765 "frh\single_module\FRH.abs" #-}
+{-# LINE 776 "refined\FRH.abs" #-}
 class EndPoint' a => MonitoringQueryEndpoint' a where
-        {-# LINE 766 "frh\single_module\FRH.abs" #-}
-        invokeWithSize :: Int -> Customer -> Int -> Obj' a -> ABS' Unit
+        {-# LINE 777 "refined\FRH.abs" #-}
+        invokeWithDelay ::
+                        Int -> Customer -> Int -> Int -> Obj' a -> ABS' Unit
 
 data MonitoringQueryEndpoint = forall a .
                                  MonitoringQueryEndpoint' a => MonitoringQueryEndpoint (Obj' a)
@@ -2922,7 +2903,7 @@ instance I'.Eq MonitoringQueryEndpoint where
           = ref1' == I'.unsafeCoerce ref2'
 
 instance MonitoringQueryEndpoint' Null' where
-        invokeWithSize = I'.undefined
+        invokeWithDelay = I'.undefined
 
 instance MonitoringQueryEndpoint' a => Sub' (Obj' a)
          MonitoringQueryEndpoint where
@@ -2931,9 +2912,9 @@ instance MonitoringQueryEndpoint' a => Sub' (Obj' a)
 instance Sub' MonitoringQueryEndpoint EndPoint where
         up' (MonitoringQueryEndpoint x') = EndPoint x'
 
-{-# LINE 769 "frh\single_module\FRH.abs" #-}
+{-# LINE 780 "refined\FRH.abs" #-}
 class UtilityFunctions' a where
-        {-# LINE 770 "frh\single_module\FRH.abs" #-}
+        {-# LINE 781 "refined\FRH.abs" #-}
         getdc_instance_names ::
                              List DeploymentComponent -> Obj' a -> ABS' (List String)
 
@@ -2954,21 +2935,21 @@ instance UtilityFunctions' a => Sub' (Obj' a) UtilityFunctions
          where
         up' = UtilityFunctions
 
-{-# LINE 777 "frh\single_module\FRH.abs" #-}
+{-# LINE 788 "refined\FRH.abs" #-}
 data DeployerImpl = DeployerImpl{}
 
 smart'DeployerImpl :: DeployerImpl
 smart'DeployerImpl = (DeployerImpl)
 
 init'DeployerImpl :: Obj' DeployerImpl -> I'.IO ()
-{-# LINE 777 "frh\single_module\FRH.abs" #-}
+{-# LINE 788 "refined\FRH.abs" #-}
 init'DeployerImpl this@(Obj' this' _ thisDC) = I'.pure ()
 
 instance DeployerIF' DeployerImpl where
         scaleUp this@(Obj' this' _ thisDC) = I'.pure ()
         scaleDown this@(Obj' this' _ thisDC) = I'.pure ()
 
-{-# LINE 782 "frh\single_module\FRH.abs" #-}
+{-# LINE 793 "refined\FRH.abs" #-}
 data InfrastructureServiceImpl = InfrastructureServiceImpl{cp'InfrastructureServiceImpl
                                                            :: CloudProvider,
                                                            inUse'InfrastructureServiceImpl ::
@@ -2987,7 +2968,7 @@ smart'InfrastructureServiceImpl cp'this
 
 init'InfrastructureServiceImpl ::
                                Obj' InfrastructureServiceImpl -> I'.IO ()
-{-# LINE 782 "frh\single_module\FRH.abs" #-}
+{-# LINE 793 "refined\FRH.abs" #-}
 init'InfrastructureServiceImpl this@(Obj' this' _ thisDC)
   = I'.pure ()
 
@@ -3077,7 +3058,7 @@ cpu''InfrastructureServiceImpl dc this@(Obj' this' _ thisDC)
        I'.lift
          ((I'.pure truncate <*> (I'.pure finvalue <*> I'.readIORef cpu)))
 
-{-# LINE 818 "frh\single_module\FRH.abs" #-}
+{-# LINE 829 "refined\FRH.abs" #-}
 data LoadBalancerEndPointImpl = LoadBalancerEndPointImpl{current'LoadBalancerEndPointImpl
                                                          :: List Service,
                                                          log'LoadBalancerEndPointImpl :: Int,
@@ -3101,7 +3082,7 @@ smart'LoadBalancerEndPointImpl
 
 init'LoadBalancerEndPointImpl ::
                               Obj' LoadBalancerEndPointImpl -> I'.IO ()
-{-# LINE 818 "frh\single_module\FRH.abs" #-}
+{-# LINE 829 "refined\FRH.abs" #-}
 init'LoadBalancerEndPointImpl this@(Obj' this' _ thisDC)
   = do (\ this'' ->
           assert (unique (services'LoadBalancerEndPointImpl this''))
@@ -3214,7 +3195,7 @@ instance EndPoint' LoadBalancerEndPointImpl where
                  ((\ this'' -> I'.pure (state'LoadBalancerEndPointImpl this'')) =<<
                     I'.readIORef this')
 
-{-# LINE 869 "frh\single_module\FRH.abs" #-}
+{-# LINE 880 "refined\FRH.abs" #-}
 data ServiceImpl = ServiceImpl{c'ServiceImpl :: Customer,
                                cost'ServiceImpl :: Int, latency'ServiceImpl :: Int,
                                log'ServiceImpl :: Int, serviceId'ServiceImpl :: Id,
@@ -3237,7 +3218,7 @@ smart'ServiceImpl serviceId'this st'this c'this cost'this
       (0 :: Int)
 
 init'ServiceImpl :: Obj' ServiceImpl -> I'.IO ()
-{-# LINE 869 "frh\single_module\FRH.abs" #-}
+{-# LINE 880 "refined\FRH.abs" #-}
 init'ServiceImpl this@(Obj' this' _ thisDC) = I'.pure ()
 
 instance Service' ServiceImpl where
@@ -3321,8 +3302,7 @@ instance Service' ServiceImpl where
 
 instance EndPoint' ServiceImpl where
         invoke request this@(Obj' this' _ thisDC)
-          = do I'.lift (println "invoke")
-               I'.lift
+          = do I'.lift
                  ((\ this'' ->
                      assert ((state'ServiceImpl this'') == RUNNING) (I'.pure ()))
                     =<< I'.readIORef this')
@@ -3362,7 +3342,7 @@ instance EndPoint' ServiceImpl where
                  ((\ this'' -> I'.pure (state'ServiceImpl this'')) =<<
                     I'.readIORef this')
 
-{-# LINE 938 "frh\single_module\FRH.abs" #-}
+{-# LINE 948 "refined\FRH.abs" #-}
 data DeploymentAgentImpl = DeploymentAgentImpl{service'DeploymentAgentImpl
                                                :: Service}
 
@@ -3372,7 +3352,7 @@ smart'DeploymentAgentImpl
       ((up' null) :: Service)
 
 init'DeploymentAgentImpl :: Obj' DeploymentAgentImpl -> I'.IO ()
-{-# LINE 938 "frh\single_module\FRH.abs" #-}
+{-# LINE 948 "refined\FRH.abs" #-}
 init'DeploymentAgentImpl this@(Obj' this' _ thisDC) = I'.pure ()
 
 instance DeploymentAgent' DeploymentAgentImpl where
@@ -3452,7 +3432,7 @@ instance DeploymentAgent' DeploymentAgentImpl where
                  ((\ this'' -> I'.pure (up' (service'DeploymentAgentImpl this'')))
                     =<< I'.readIORef this')
 
-{-# LINE 974 "frh\single_module\FRH.abs" #-}
+{-# LINE 984 "refined\FRH.abs" #-}
 data DeploymentServiceImpl = DeploymentServiceImpl{allocations'DeploymentServiceImpl
                                                    :: Map Service DeploymentAgent,
                                                    services'DeploymentServiceImpl :: Map Id Service}
@@ -3467,7 +3447,7 @@ smart'DeploymentServiceImpl
 
 init'DeploymentServiceImpl ::
                            Obj' DeploymentServiceImpl -> I'.IO ()
-{-# LINE 974 "frh\single_module\FRH.abs" #-}
+{-# LINE 984 "refined\FRH.abs" #-}
 init'DeploymentServiceImpl this@(Obj' this' _ thisDC) = I'.pure ()
 
 instance DeploymentService' DeploymentServiceImpl where
@@ -3639,7 +3619,7 @@ lookup''DeploymentServiceImpl id this@(Obj' this' _ thisDC)
             ((not) <$!> ((==) <$!> I'.readIORef s <*> I'.pure Nothing)))
        I'.lift ((I'.pure fromJust <*> I'.readIORef s))
 
-{-# LINE 1037 "frh\single_module\FRH.abs" #-}
+{-# LINE 1047 "refined\FRH.abs" #-}
 data LoadBalancerServiceImpl = LoadBalancerServiceImpl{endPoints'LoadBalancerServiceImpl
                                                        :: Map Int LoadBalancerEndPoint}
 
@@ -3650,7 +3630,7 @@ smart'LoadBalancerServiceImpl
 
 init'LoadBalancerServiceImpl ::
                              Obj' LoadBalancerServiceImpl -> I'.IO ()
-{-# LINE 1037 "frh\single_module\FRH.abs" #-}
+{-# LINE 1047 "refined\FRH.abs" #-}
 init'LoadBalancerServiceImpl this@(Obj' this' _ thisDC)
   = I'.pure ()
 
@@ -3916,7 +3896,7 @@ status''LoadBalancerServiceImpl id state this@(Obj' this' _ thisDC)
              I'.lift (I'.writeIORef success True))
        I'.lift (I'.readIORef success)
 
-{-# LINE 1159 "frh\single_module\FRH.abs" #-}
+{-# LINE 1169 "refined\FRH.abs" #-}
 data PlatformServiceImpl = PlatformServiceImpl{customers'PlatformServiceImpl
                                                :: Map Customer (Map Config Id),
                                                ds'PlatformServiceImpl :: DeploymentService,
@@ -3946,7 +3926,7 @@ smart'PlatformServiceImpl ds'this ls'this
       (EmptyMap :: Map Id Service)
 
 init'PlatformServiceImpl :: Obj' PlatformServiceImpl -> I'.IO ()
-{-# LINE 1159 "frh\single_module\FRH.abs" #-}
+{-# LINE 1169 "refined\FRH.abs" #-}
 init'PlatformServiceImpl this@(Obj' this' _ thisDC) = I'.pure ()
 
 instance MonitorPlatformService' PlatformServiceImpl where
@@ -4945,73 +4925,7 @@ uninstallInstance''PlatformServiceImpl endPoint s serviceId
        _ <- I'.lift (get =<< I'.readIORef uf)
        I'.pure ()
 
-{-# LINE 1441 "frh\single_module\FRH.abs" #-}
-data RepeatUserImpl = RepeatUserImpl{log'RepeatUserImpl :: Int}
-
-smart'RepeatUserImpl :: RepeatUserImpl
-smart'RepeatUserImpl
-  = (\ log'this -> (RepeatUserImpl (I'.fromIntegral log'this)))
-      (0 :: Int)
-
-init'RepeatUserImpl :: Obj' RepeatUserImpl -> I'.IO ()
-{-# LINE 1441 "frh\single_module\FRH.abs" #-}
-init'RepeatUserImpl this@(Obj' this' _ thisDC) = I'.pure ()
-
-instance User' RepeatUserImpl where
-        use endPoint min max this@(Obj' this' _ thisDC)
-          = do count :: IORef' Int <- I'.lift (I'.newIORef 0)
-               while (I'.pure True)
-                 (do state :: IORef' State <- (I'.lift . I'.newIORef) =<<
-                                                (this <..> getState''RepeatUserImpl (up' endPoint))
-                     when' <- I'.lift
-                                (((==) <$!> I'.readIORef state <*> I'.pure RUNNING))
-                     I'.when when'
-                       (do I'.lift
-                             (I'.writeIORef this' =<<
-                                ((\ this'' ->
-                                    this''{log'RepeatUserImpl =
-                                             ((I'.fromIntegral (log'RepeatUserImpl this'')) + 1)})
-                                   <$!> I'.readIORef this'))
-                           res :: IORef' Response <- (I'.lift . I'.newIORef) =<<
-                                                       (this <..>
-                                                          invoke''RepeatUserImpl (up' endPoint)
-                                                            (I'.fromIntegral min)
-                                                            (I'.fromIntegral max))
-                           I'.pure ()))
-
-getState''RepeatUserImpl ::
-                         EndPoint -> Obj' RepeatUserImpl -> ABS' State
-getState''RepeatUserImpl point this@(Obj' this' _ thisDC)
-  = do sf :: IORef' (Fut State) <- I'.lift
-                                     (I'.newIORef =<<
-                                        ((\ (EndPoint obj') -> (obj' <!> getStatus)) point))
-       state :: IORef' State <- I'.lift
-                                  (I'.newIORef =<< (get =<< I'.readIORef sf))
-       I'.lift (I'.readIORef state)
-
-invoke''RepeatUserImpl ::
-                       EndPoint -> Int -> Int -> Obj' RepeatUserImpl -> ABS' Response
-invoke''RepeatUserImpl point min max this@(Obj' this' _ thisDC)
-  = do this <..>
-         invokeWithSize''RepeatUserImpl (up' point) (I'.fromIntegral min)
-           (I'.fromIntegral max)
-           0
-
-invokeWithSize''RepeatUserImpl ::
-                               EndPoint ->
-                                 Int -> Int -> Request -> Obj' RepeatUserImpl -> ABS' Response
-invokeWithSize''RepeatUserImpl point min max request
-  this@(Obj' this' _ thisDC)
-  = do awaitDuration' this (maximum [(I'.fromIntegral min)])
-         (minimum [(I'.fromIntegral max)])
-       bf :: IORef' (Fut Response) <- I'.lift
-                                        (I'.newIORef =<<
-                                           ((\ (EndPoint obj') -> (obj' <!> invoke request)) point))
-       b :: IORef' Response <- I'.lift
-                                 (I'.newIORef =<< (get =<< I'.readIORef bf))
-       I'.lift (I'.readIORef b)
-
-{-# LINE 1470 "frh\single_module\FRH.abs" #-}
+{-# LINE 1480 "refined\FRH.abs" #-}
 data MonitoringServiceImpl = MonitoringServiceImpl{log'MonitoringServiceImpl
                                                    :: Int,
                                                    monitorMap'MonitoringServiceImpl ::
@@ -5027,7 +4941,7 @@ smart'MonitoringServiceImpl
 
 init'MonitoringServiceImpl ::
                            Obj' MonitoringServiceImpl -> I'.IO ()
-{-# LINE 1470 "frh\single_module\FRH.abs" #-}
+{-# LINE 1480 "refined\FRH.abs" #-}
 init'MonitoringServiceImpl this@(Obj' this' _ thisDC)
   = this <!!> run''MonitoringServiceImpl
 
@@ -5197,7 +5111,7 @@ run''MonitoringServiceImpl this@(Obj' this' _ thisDC)
                    I'.lift
                      (I'.writeIORef futs =<< (I'.pure tail <*> I'.readIORef futs))))
 
-{-# LINE 1528 "frh\single_module\FRH.abs" #-}
+{-# LINE 1538 "refined\FRH.abs" #-}
 data LatencyMonitor = LatencyMonitor{log'LatencyMonitor :: Int,
                                      ps'LatencyMonitor :: MonitorPlatformService,
                                      upper'LatencyMonitor :: Int}
@@ -5211,7 +5125,7 @@ smart'LatencyMonitor upper'this ps'this
       (0 :: Int)
 
 init'LatencyMonitor :: Obj' LatencyMonitor -> I'.IO ()
-{-# LINE 1528 "frh\single_module\FRH.abs" #-}
+{-# LINE 1538 "refined\FRH.abs" #-}
 init'LatencyMonitor this@(Obj' this' _ thisDC) = I'.pure ()
 
 instance Monitor' LatencyMonitor where
@@ -5386,7 +5300,7 @@ scaling''LatencyMonitor logger latency this@(Obj' this' _ thisDC)
          ((I'.pure max <*> I'.pure 1 <*>
              (I'.pure truncate <*> I'.readIORef amount)))
 
-{-# LINE 1589 "frh\single_module\FRH.abs" #-}
+{-# LINE 1599 "refined\FRH.abs" #-}
 data ServiceProviderImpl = ServiceProviderImpl{customers'ServiceProviderImpl
                                                :: Map Customer (Map Config Int),
                                                ls'ServiceProviderImpl :: LoadBalancerService,
@@ -5400,7 +5314,7 @@ smart'ServiceProviderImpl ps'this ls'this
       (EmptyMap :: Map Customer (Map Config Int))
 
 init'ServiceProviderImpl :: Obj' ServiceProviderImpl -> I'.IO ()
-{-# LINE 1589 "frh\single_module\FRH.abs" #-}
+{-# LINE 1599 "refined\FRH.abs" #-}
 init'ServiceProviderImpl this@(Obj' this' _ thisDC) = I'.pure ()
 
 instance ServiceProvider' ServiceProviderImpl where
@@ -5500,7 +5414,7 @@ instance ServiceProvider' ServiceProviderImpl where
                _ <- I'.lift (get =<< I'.readIORef tmp28692953)
                I'.pure ()
 
-{-# LINE 1617 "frh\single_module\FRH.abs" #-}
+{-# LINE 1627 "refined\FRH.abs" #-}
 data QueryServiceImpl = QueryServiceImpl{c'QueryServiceImpl ::
                                          Customer,
                                          currentState'QueryServiceImpl :: State,
@@ -5524,7 +5438,7 @@ smart'QueryServiceImpl da'this c'this staging'this
       (0 :: Int)
 
 init'QueryServiceImpl :: Obj' QueryServiceImpl -> I'.IO ()
-{-# LINE 1617 "frh\single_module\FRH.abs" #-}
+{-# LINE 1627 "refined\FRH.abs" #-}
 init'QueryServiceImpl this@(Obj' this' _ thisDC) = I'.pure ()
 
 instance IQueryService' QueryServiceImpl where
@@ -5638,7 +5552,7 @@ instance EndPoint' QueryServiceImpl where
                  ((\ this'' -> I'.pure (currentState'QueryServiceImpl this'')) =<<
                     I'.readIORef this')
 
-{-# LINE 1684 "frh\single_module\FRH.abs" #-}
+{-# LINE 1694 "refined\FRH.abs" #-}
 data MonitoringQueryEndpointImpl = MonitoringQueryEndpointImpl{allEndpoints'MonitoringQueryEndpointImpl
                                                                :: List EndPoint,
                                                                current'MonitoringQueryEndpointImpl
@@ -5662,12 +5576,12 @@ smart'MonitoringQueryEndpointImpl allEndpoints'this monitor'this
 
 init'MonitoringQueryEndpointImpl ::
                                  Obj' MonitoringQueryEndpointImpl -> I'.IO ()
-{-# LINE 1684 "frh\single_module\FRH.abs" #-}
+{-# LINE 1694 "refined\FRH.abs" #-}
 init'MonitoringQueryEndpointImpl this@(Obj' this' _ thisDC)
   = I'.pure ()
 
 instance MonitoringQueryEndpoint' MonitoringQueryEndpointImpl where
-        invokeWithSize proctime customer amazonECU
+        invokeWithDelay proctime customer amazonECU delay
           this@(Obj' this' _ thisDC)
           = do req :: IORef' Request <- I'.lift
                                           (I'.newIORef
@@ -5683,13 +5597,6 @@ instance MonitoringQueryEndpoint' MonitoringQueryEndpointImpl where
                                                        (I'.pure timeValue <*> I'.readIORef end)
                                                        <*>
                                                        (I'.pure timeValue <*> I'.readIORef start))))
-               I'.lift (print "old proctime: ")
-               I'.lift (print (toString (I'.fromIntegral proctime)))
-               I'.lift (print " new proctime: ")
-               I'.lift
-                 (println =<<
-                    (I'.pure toString <*>
-                       (I'.fromIntegral <$!> I'.readIORef newProcTime)))
                _ <- (\ this'' ->
                        (\ (DegradationMonitorIf obj') ->
                           awaitSugar'' this obj' =<<
@@ -5745,14 +5652,14 @@ instance EndPoint' MonitoringQueryEndpointImpl where
                  ((\ this'' -> I'.pure (state'MonitoringQueryEndpointImpl this''))
                     =<< I'.readIORef this')
 
-{-# LINE 1719 "frh\single_module\FRH.abs" #-}
+{-# LINE 1737 "refined\FRH.abs" #-}
 data UtilityFunctionsImpl = UtilityFunctionsImpl{}
 
 smart'UtilityFunctionsImpl :: UtilityFunctionsImpl
 smart'UtilityFunctionsImpl = (UtilityFunctionsImpl)
 
 init'UtilityFunctionsImpl :: Obj' UtilityFunctionsImpl -> I'.IO ()
-{-# LINE 1719 "frh\single_module\FRH.abs" #-}
+{-# LINE 1737 "refined\FRH.abs" #-}
 init'UtilityFunctionsImpl this@(Obj' this' _ thisDC) = I'.pure ()
 
 instance UtilityFunctions' UtilityFunctionsImpl where
@@ -5777,7 +5684,7 @@ instance UtilityFunctions' UtilityFunctionsImpl where
                        (I'.writeIORef ls_ =<< (I'.pure tail <*> I'.readIORef ls_)))
                I'.lift ((I'.pure reverse <*> I'.readIORef rs))
 
-{-# LINE 1735 "frh\single_module\FRH.abs" #-}
+{-# LINE 1753 "refined\FRH.abs" #-}
 data AddQueryServicesDeployerImpl = AddQueryServicesDeployerImpl{cloudProvider'AddQueryServicesDeployerImpl
                                                                  :: CloudProvider,
                                                                  depl_list'AddQueryServicesDeployerImpl
@@ -5825,7 +5732,7 @@ smart'AddQueryServicesDeployerImpl cloudProvider'this
 
 init'AddQueryServicesDeployerImpl ::
                                   Obj' AddQueryServicesDeployerImpl -> I'.IO ()
-{-# LINE 1735 "frh\single_module\FRH.abs" #-}
+{-# LINE 1753 "refined\FRH.abs" #-}
 init'AddQueryServicesDeployerImpl this@(Obj' this' _ thisDC)
   = I'.pure ()
 
@@ -5908,10 +5815,9 @@ main
                                                       (newlocal' this init'MainSmartDeployer =<<
                                                          I'.pure smart'MainSmartDeployer <*>
                                                            I'.readIORef cp))
-            I'.lift (println "after new MainSmartDeployer")
             _ <- (\ (SmartDeployInterface obj') -> sync' this obj' deploy) =<<
                    I'.lift (I'.readIORef c1)
-            I'.lift (println "after deploy")
+            I'.lift (println "Initial Deployment Configuration set up")
             monitorPlatformServices_aux ::
               IORef'
                 (List
@@ -6105,7 +6011,7 @@ main
                                             ((\ (MonitoringService obj') ->
                                                 (obj' <!>) =<<
                                                   I'.pure addMS <*>
-                                                    (I'.pure Rule_ <*> I'.pure 5000 <*>
+                                                    (I'.pure Rule_ <*> I'.pure 500 <*>
                                                        (up' <$!> I'.readIORef degradationMonitor)))
                                                =<< I'.readIORef ms))
             _ <- I'.lift (get =<< I'.readIORef df)
@@ -6127,8 +6033,8 @@ main
                   I'.atomicModifyIORef' apiStore'
                     (\ m' -> (I'.put m' "queryService" (I'.toDyn v'), ())))
                  =<< I'.readIORef mqep)
-            I'.lift (print "FRH model simulation terminated"))
-      (do I'.get "/call/:httpName'/invokeWithSize"
+            I'.lift (println "Endpoints set up. Waiting for requests..."))
+      (do I'.get "/call/:httpName'/invokeWithDelay"
             (do objs' <- I'.lift (I'.readIORef apiStore')
                 httpName' <- I'.param "httpName'"
                 case I'.lookup httpName' objs' of
@@ -6136,7 +6042,7 @@ main
                                    case I'.fromDynamic obj' of
                                        Just
                                          (MonitoringQueryEndpoint obj'') -> do mapplied' <- I'.pure
-                                                                                              invokeWithSize
+                                                                                              invokeWithDelay
                                                                                               <*>
                                                                                               I'.param
                                                                                                 "proctime"
@@ -6146,6 +6052,9 @@ main
                                                                                               <*>
                                                                                               I'.param
                                                                                                 "amazonECU"
+                                                                                              <*>
+                                                                                              I'.param
+                                                                                                "delay"
                                                                                I'.lift
                                                                                  (get =<<
                                                                                     obj'' <!>
