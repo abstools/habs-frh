@@ -1,307 +1,72 @@
-module OneModule;
+module FRH;
+
+import * from ABS.DC;
+
+interface ISmartCloudProvider extends CloudProvider {
+  Unit addSmartDeployInstances();
+}
 
 
-// module ABS.DC;
-
-// export SimDeploymentComponent, CloudProvider, SimCloudProvider;
-
-// import * from ABS.SetsMaps;
-
-class SimDeploymentComponent(String description, Map<Resourcetype,Rat> initconfig) implements DeploymentComponent {
-  Int instrPS= truncate(lookupDefault(initconfig, Speed, 0));
-
-  // TODO
-  Rat load(Resourcetype rtype, Int periods) { 
-    return 0; 
-  }
-
-  InfRat total(Resourcetype rtype) {
-    return case lookup(initconfig, rtype) {
-        Nothing => InfRat;
-        Just(v) => Fin(v);
-    };
-   }
-
-  Unit transfer(DeploymentComponent target, Rat amount, Resourcetype rtype) {}
-
-  // TODO
-  Unit decrementResources(Rat amount, Resourcetype rtype) {}
-  // TODO
-  Unit incrementResources(Rat amount, Resourcetype rtype) {}
-  
-  String getName() {
-    return description;
-  }
-
-  // CloudProvider getProvider();
-
-  // TODO
-   Time getCreationTime() {
-    return now(); // stub, TODO
-  }
-   Rat getStartupDuration() {
-    return 0;
-  }
-
-  // TODO
-   Rat getShutdownDuration() {
-    return 0;
-  }
-
-  // TODO
-   Int getPaymentInterval() {
-    return 0;
-  }
-
-  // TODO
-   Rat getCostPerInterval() {
-    return 0;
-  }
-
-  // TODO
-   Rat getNumberOfCores() {
-    return 0;
-  }
-  // TODO
-  Bool acquire() { return True; }
-  // TODO
-  Bool release() { return True; }
-  // TODO
-  Bool shutdown() { return True; }
-
-  Unit request__(Int nrInstr) {
-    Int input = nrInstr;
-    while (input > instrPS) {
-      duration(1,1);
-      suspend;
-      input = input - instrPS;
+class SmartCloudProvider(String name) implements ISmartCloudProvider {
+    CloudProvider wrapped;
+    {
+      wrapped = new local CloudProvider(name); // wrapped = new local SimCloudProvider(name);
     }
-    Rat remaining = nrInstr/instrPS;
-    duration(remaining,remaining);
-  }
-}
-
-
-// interface DeploymentComponentForCloudProvider extends DeploymentComponent {
-//     Unit setProvider(CloudProviderForDeploymentComponent provider);
-// }
-
-interface CloudProvider {
-    // (pre)launchInstance might have a delay, the others are instantaneous.
-    // launchInstance might hand out an already-running instance if it has
-    // been released; in this case there will be no delay.
-    DeploymentComponent prelaunchInstance(Map<Resourcetype, Rat> d);
-    DeploymentComponent launchInstance(Map<Resourcetype, Rat> description);
-    // acquireInstance, releaseInstance are called from deployment components.
-    // launchInstance does the equivalent of acquireInstance.
-    Bool acquireInstance_(DeploymentComponent instance_);
-    //Bool releaseInstance(DeploymentComponent instance_);
-    Bool shutdownInstance(DeploymentComponent instance_);
-
-    // Rat getAccumulatedCost();
-    //Unit shutdown();
-
-    // Instance descriptions.  Call setInstanceDescriptions with a map of
-    // (name -> resources) information.  Then, launchInstanceNamed() returns a
-    // deployment component with the specified resources, or null if the given
-    // name could not be found.  The resulting deployment components are then
-    // handled as normal (acquire/release/kill).
-    Unit setInstanceDescriptions(Map<String, Map<Resourcetype, Rat>> instanceDescriptions);
-    Unit addInstanceDescription(Pair<String, Map<Resourcetype, Rat>> instanceDescription);
-    Unit removeInstanceDescription(String instanceDescriptionName);
-    Map<String, Map<Resourcetype, Rat>> getInstanceDescriptions();
-    DeploymentComponent prelaunchInstanceNamed(String instancename);
-    DeploymentComponent launchInstanceNamed(String instancename);
-
-    Unit addSmartDeployInstances();
-}
-
-// interface CloudProviderForDeploymentComponent extends CloudProvider {
-//     Unit internalShutdownInstance(DeploymentComponentForCloudProvider instance_);
-// }
-
-
-class SimCloudProvider(String name) implements CloudProvider {
-    // Preliminary version - mind the FIXMEs!
-
-    // Instance type descriptions for launchInstanceNamed()
-    Map<String, Map<Resourcetype, Rat>> instanceDescriptions = map[];
-
-    // All launched instances
-    // Set<DeploymentComponent> launchedInstances = set[];
-    // // Launched instances that are currently acquired
-    // Set<DeploymentComponent> acquiredInstances = set[];
-    // Set<DeploymentComponent> killedInstances = set[];
-
-    List<DeploymentComponent> launchedInstances = list[];
-    // Launched instances that are currently acquired
-    List<DeploymentComponent> acquiredInstances = list[];
-    List<DeploymentComponent> killedInstances = list[];
-
-    Int nextInstanceId = 0;
-    // Rat accumulatedCost = 0;
-    Bool keeprunning = True;    // Flag for forced shutdown
-
-    // Unit startAccounting() {
-    //     while(keeprunning && !emptySet(launchedInstances)) {
-    //         Rat cost = this.sumOfCosts(launchedInstances);
-    //         accumulatedCost = accumulatedCost + cost;
-    //         await duration(1, 1);
-    //     }
-    // }
-
-    //Unit shutdown() { keeprunning = False; }
-
-    // Rat sumOfCosts(Set<DeploymentComponent> dcs_) {
-    //     Set<DeploymentComponent> dcs = dcs_;
-    //     Rat result = 0;
-    //     Time t = now();
-    //     while (!emptySet(dcs)) {
-    //         DeploymentComponent dc = take(dcs);
-    //         dcs = remove(dcs, dc);
-    //         Rat cost = await dc!getCostPerInterval();
-    //         if (cost > 0) {
-    //             Time creationtime = await dc!getCreationTime();
-    //             Rat time_elapse = timeDifference(t, creationtime);
-    //             Int interval = await dc!getPaymentInterval();
-    //             if (time_elapse % interval == 0) {
-    //                 result = result + cost;
-    //             }
-    //         }
-    //     }
-    //     return result;
-    // }
-
-    DeploymentComponent createInstance(String instancename, Map<Resourcetype, Rat> d) {
-        //Bool mightNeedToStartAccounting = emptySet(launchedInstances);
-        // DeploymentComponentForCloudProvider result
-        // = new SimDeploymentComponent(instancename + "-" + toString(nextInstanceId), d);
-        DeploymentComponent result = new SimDeploymentComponent(instancename + "-" + toString(nextInstanceId), d);
-        //result!setProvider(this);
-        nextInstanceId = nextInstanceId + 1;
-        // Work around a bug in the type system: upcasting in `insertElement'
-        // does not work although it should
-        DeploymentComponent stupidTypeSystem = result;
-        //launchedInstances = insertElement(launchedInstances, stupidTypeSystem);
-        launchedInstances = Cons(stupidTypeSystem,launchedInstances);
-        // Start accounting after adding new machine, before waiting for it to
-        // start up
-        //if (mightNeedToStartAccounting) this!startAccounting();
-        return result;
+    [Atomic] Unit shutdown() { 
+      return wrapped.shutdown();
     }
 
     DeploymentComponent prelaunchInstance(Map<Resourcetype, Rat> d) {
-        DeploymentComponent result = this.createInstance(name, d);
-        Rat startup_duration = await result!getStartupDuration();
-        await duration(startup_duration, startup_duration);
-        return result;
+      return wrapped.prelaunchInstance(d);
     }
 
     DeploymentComponent prelaunchInstanceNamed(String instancename) {
-        Maybe<Map<Resourcetype, Rat>> mconfig = lookup(instanceDescriptions, instancename);
-        DeploymentComponent dc = null;
-        if (isJust(mconfig)) {
-            Map<Resourcetype, Rat> config = fromJust(mconfig);
-            dc = this.createInstance(name + "-" + instancename, config);
-        }
-        Rat startup_duration = await dc!getStartupDuration();
-        await duration(startup_duration, startup_duration);
-        return dc;
+      return wrapped.prelaunchInstanceNamed(instancename);
     }
 
     DeploymentComponent launchInstance(Map<Resourcetype, Rat> d) {
-        // if we don't call prelaunchInstance here, remember to start
-        // accounting as well
-        DeploymentComponent result = this.prelaunchInstance(d);
-        //acquiredInstances = insertElement(acquiredInstances, result);
-        acquiredInstances = Cons(result,acquiredInstances);
-        return result;
+      return wrapped.launchInstance(d);
     }
 
     DeploymentComponent launchInstanceNamed(String instancename) {
-        // if we don't call prelaunchInstance here, remember to start
-        // accounting as well
-        DeploymentComponent result = this.prelaunchInstanceNamed(instancename);
-        if (result != null) {
-            //acquiredInstances = insertElement(acquiredInstances, result);
-            acquiredInstances = Cons(result,acquiredInstances);
-        }
-        return result;
+      return wrapped.launchInstanceNamed(instancename);
     }
 
-    Bool acquireInstance_(DeploymentComponent instance_) {
-        Bool result = True;
-        //CloudProvider cp = await instance_!getProvider();
-        // if (cp != this) {
-        //     // it's not one of "our" deployment components
-        //     result = False;
-        // } else 
-        // if (contains_(acquiredInstances, instance_)
-        //     || contains_(killedInstances, instance_)) {
-        //     result = False;
-        // } else {
-        //     //acquiredInstances = insertElement(acquiredInstances, instance_);
-        //   acquiredInstances = Cons(instance_, acquiredInstances);
-        // }
-        return False;
+    Bool acquireInstance(DeploymentComponent instance_) {
+      return wrapped.acquireInstance(instance_);
     }
-    // Bool releaseInstance(DeploymentComponent instance_) {
-    //     // FIXME: Currently we do not protect against double-release and always
-    //     // return True.  Once we have means of testing whether there is still
-    //     // activity on a deployment component, we could refuse to release it in
-    //     // that case and return False.
-    //     if (contains(acquiredInstances, instance_)) {
-    //         acquiredInstances = remove(acquiredInstances, instance_);
-    //     }
-    //     return True;
-    // }
+    Bool releaseInstance(DeploymentComponent instance_) {
+      return wrapped.releaseInstance(instance_);
+    }
 
     Bool shutdownInstance(DeploymentComponent instance_) {
-        instance_!shutdown();
-        return True;
+      return wrapped.shutdownInstance(instance_);
     }
 
-    // Unit internalShutdownInstance(DeploymentComponentForCloudProvider instance_) {
-    //     DeploymentComponent stupidTypeSystem = instance_;
-    //     // Also kill an instance that is acquired.  FIXME: is this the right
-    //     // thing, or should we refuse to shutdown?
-    //     acquiredInstances = remove(acquiredInstances, stupidTypeSystem);
-    //     // Insert `instance' into killedInstances so it doesn't get
-    //     // re-acquired.
-    //     killedInstances = insertElement(killedInstances, stupidTypeSystem);
-    //     Rat shutdown_duration = await instance_!getShutdownDuration();
-    //     await duration(shutdown_duration, shutdown_duration);
-
-    //     // Now remove from launchedInstances (after waiting for shutdown) so
-    //     // shutdown duration gets billed
-    //     launchedInstances = remove(launchedInstances, stupidTypeSystem);
-
-    //     // Shut down accounting thread if necessary
-    //     if (emptySet(launchedInstances)) keeprunning = False;
-    // }
-
-    // Rat getAccumulatedCost() {
-    //     return accumulatedCost;
-    // }
+    [Atomic] Rat getAccumulatedCost() {
+      return wrapped.getAccumulatedCost();
+    }
 
     // Sets up information for [pre]launchInstanceNamed()
-    Unit setInstanceDescriptions(Map<String, Map<Resourcetype, Rat>> instanceDescriptions) {
-        this.instanceDescriptions = instanceDescriptions;
+    [Atomic] Unit setInstanceDescriptions(Map<String, Map<Resourcetype, Rat>> instanceDescriptions) {
+      return wrapped.setInstanceDescriptions(instanceDescriptions);
     }
 
     // Adds an instance for [pre]launchInstanceNamed()
-    Unit addInstanceDescription(Pair<String, Map<Resourcetype, Rat>> instanceDescription) {
-        this.instanceDescriptions = insert(this.instanceDescriptions, instanceDescription);
+    [Atomic] Unit addInstanceDescription(Pair<String, Map<Resourcetype, Rat>> instanceDescription) {
+      return wrapped.addInstanceDescription(instanceDescription);
     }
 
     // Removes an instance for [pre]launchInstanceNamed() based on its name
-    Unit removeInstanceDescription(String instanceDescriptionName) {
-        this.instanceDescriptions = removeKey(this.instanceDescriptions, instanceDescriptionName);
+    [Atomic] Unit removeInstanceDescription(String instanceDescriptionName) {
+      return wrapped.removeInstanceDescription(instanceDescriptionName);
     }
 
-    Map<String, Map<Resourcetype, Rat>> getInstanceDescriptions() {
-        return this.instanceDescriptions;
+    [Atomic] Map<String, Map<Resourcetype, Rat>> getInstanceDescriptions() {
+      return wrapped.getInstanceDescriptions();
     }
+
+
     Unit addSmartDeployInstances(){
     this.addInstanceDescription(Pair( "c4_2xlarge_eu", map(Cons( Pair( CostPerInterval, 419 ), Cons( Pair( Cores, 8 ), Cons( Pair( Memory, 1500 ), Cons( Pair( Speed, 31 ), Nil ) ) ) )) ));
     this.addInstanceDescription(Pair( "m4_large_eu", map(Cons( Pair( CostPerInterval, 120 ), Cons( Pair( Cores, 2 ), Cons( Pair( Memory, 800 ), Cons( Pair( Speed, 6 ), Nil ) ) ) )) ));
@@ -315,6 +80,20 @@ class SimCloudProvider(String name) implements CloudProvider {
     this.addInstanceDescription(Pair( "c4_xlarge_us2", map(Cons( Pair( CostPerInterval, 209 ), Cons( Pair( Cores, 4 ), Cons( Pair( Memory, 750 ), Cons( Pair( Speed, 16 ), Nil ) ) ) )) ));
     this.addInstanceDescription(Pair( "m4_xlarge_us2", map(Cons( Pair( CostPerInterval, 239 ), Cons( Pair( Cores, 4 ), Cons( Pair( Memory, 1600 ), Cons( Pair( Speed, 13 ), Nil ) ) ) )) ));
     this.addInstanceDescription(Pair( "m4_xlarge_us1", map(Cons( Pair( CostPerInterval, 239 ), Cons( Pair( Cores, 4 ), Cons( Pair( Memory, 1600 ), Cons( Pair( Speed, 13 ), Nil ) ) ) )) ));
+    this.addInstanceDescription(Pair("m3_medium_us1",
+      map[Pair(CostPerInterval,67)
+      ,Pair(Cores,1)
+      ,Pair(Memory,375)
+      ,Pair(Speed,3)
+      //,Pair(Startupduration,7000)
+      ]));
+    this.addInstanceDescription(Pair("m3_medium_us2",
+      map[Pair(CostPerInterval,67)
+      ,Pair(Cores,1)
+      ,Pair(Memory,375)
+      ,Pair(Speed,3)
+      //,Pair(Startupduration,7000)
+      ]));
     this.addInstanceDescription(Pair("t2_small_us1",
             map[Pair(CostPerInterval,26)
             ,Pair(Cores,1)
@@ -333,432 +112,8 @@ class SimCloudProvider(String name) implements CloudProvider {
 
 }
 
-
-// module ABS.SetsMaps;
-
-// Sets
-
-//export *;
-
-// Sets are currently implemented as sorted lists (any implementation
-
-// must yield the same structure regardless of insertion order so that
-
-// set equality via == is preserved).  Using the Insert_ constructor
-
-// directly is strongly discouraged.
-
-data Set<A> = EmptySet | Insert(A, Set<A>);
-
-
-
-// set constructor helper
-
-def Set<A> set<A>(List<A> l) = 
-
-    case l { 
-
-       Nil => EmptySet; 
-
-       Cons(x,xs) => insertElement(set(xs), x); 
-
-    };
-
-
-
-/**
-
- * Returns True if set 'ss' contains element 'e', False otherwise.
-
- */
-
-def Bool contains<A>(Set<A> ss, A e) =
-
-  case ss {
-
-    EmptySet => False ;
-
-    Insert(e, _) => True;
-
-    Insert(x, xs) => if x > e then False else contains(xs, e);
-
-  };
-
-  
-
-/**
-
- * Returns True if set 'xs' is empty, False  otherwise.
-
- */
-
-def Bool emptySet<A>(Set<A> xs) = (xs == EmptySet); 
-
-
-
-/**
-
- * Returns the size of set 'xs'.
-
- */
-
-def Int size<A>(Set<A> xs) = 
-
-   case xs {
-
-      EmptySet => 0 ; 
-
-      Insert(s, ss) => 1 + size(ss); 
-
-   };
-
-
-
-/**
-
- * Returns the union of sets 'set1' and 'set2'.
-
- */
-
-def Set<A> union<A>(Set<A> set1, Set<A> set2) =
-
-   case set1 {
-
-      EmptySet => set2;
-
-      Insert(e1, ss1) =>  case set2 {
-
-          EmptySet => set1;
-
-          Insert(e1, ss2) => Insert(e1, union(ss1, ss2));
-
-          Insert(e2, ss2) =>
-
-            if e1 < e2
-
-            then Insert(e1, union(ss1, set2))
-
-            else Insert(e2, union(set1, ss2));
-
-      };
-
-   }; 
-
-
-
-/**
-
- * Returns the intersection of sets 'set1' and 'set2'.
-
- */
-
-def Set<A> intersection<A>(Set<A> set1, Set<A> set2) =
-
-   case set1 {
-
-      EmptySet => EmptySet;
-
-      Insert(e1, ss1) =>  case set2 {
-
-          EmptySet => EmptySet;
-
-          Insert(e1, ss2) => Insert(e1, intersection(ss1, ss2));
-
-          Insert(e2, ss2) =>
-
-            if e1 < e2
-
-            then intersection(ss1, set2)
-
-            else intersection(set1, ss2);
-
-      };
-
-   };
-
-
-
-/**
-
- * Returns the difference of sets 'set1' and 'set2', i.e., all
-
- * elements of 'set1' that are not in 'set2'.
-
- */
-
-def Set<A> difference<A>(Set<A> set1, Set<A> set2) =
-
-   case set1 {
-
-      EmptySet => EmptySet;
-
-      Insert(e1, ss1) =>  case set2 {
-
-          EmptySet => set1;
-
-          Insert(e1, ss2) => difference(ss1, ss2);
-
-          Insert(e2, ss2) =>
-
-            if e1 < e2
-
-            then Insert(e1, difference(ss1, set2))
-
-            else difference(set1, ss2);
-
-      };
-
-   };
-
-
-
-/**
-
- * Returns a set with all elements of set 'xs' plus element 'e'.
-
- * Returns 'xs' if 'xs' already contains 'e'.
-
- */
-
-def Set<A> insertElement<A>(Set<A> xs, A e) =
-
-  case xs {
-
-      EmptySet => Insert(e, EmptySet);
-
-      Insert(e, _) => xs;
-
-      Insert(x, ss) => if e < x then Insert(e, xs) else Insert(x, insertElement(ss, e));
-
-  };
-
-
-
-/**
-
- * Returns a set with all elements of set 'xs' except element 'e'.
-
- */
-
-def Set<A> remove<A>(Set<A> xs, A e) = 
-
-  case xs {
-
-     EmptySet => EmptySet ;
-
-     Insert(e, ss) => ss;
-
-     Insert(x, ss) => if e < x then xs else Insert(x, remove(ss, e));
-
-  };
-
-
-
-/**
-
- * Returns one (arbitrary) element from a set.
-
- * To iterate over a set, take one element and remove it from the set.
-
- * Repeat until set is empty.
-
- */
-
-def A take<A>(Set<A> ss) =
-
-  case ss {
-
-    Insert(e, _) => e;
-
-  };
-
-
-
-// checks whether the input set has more elements to be iterated.
-
-def Bool hasNext<A>(Set<A> s) = ! emptySet(s); 
-
-
-
-// Partial function to iterate over a set.
-
-def Pair<Set<A>,A> next<A>(Set<A> s) = 
-
-   case s { 
-
-      Insert(e, set2) => Pair(set2,e); 
-
-   };
-
-
-// Maps
-
-data Map<A, B> = EmptyMap | InsertAssoc(Pair<A, B>, Map<A, B>);
-
- // map constructor helper (does not preserve injectivity)
-
-def Map<A, B> map<A, B>(List<Pair<A, B>> l) =
-
-  case l { 
-
-     Nil => EmptyMap; 
-
-     Cons(hd, tl) => InsertAssoc(hd, map(tl)); 
-
-  };
-
-  
-
-  
-
-def Map<A, B> removeKey<A, B>(Map<A, B> map, A key) = // remove from the map
-
-  case map {
-
-    EmptyMap => map;
-
-    InsertAssoc(Pair(key, _), m) => m;
-
-    InsertAssoc(pair, tail) => InsertAssoc(pair, removeKey(tail, key));
-
-  };
-
-    
-
-
-
-def List<B> values<A, B>(Map<A, B> map) =
-
-  case map {
-
-    EmptyMap => Nil ;
-
-    InsertAssoc(Pair(_, elem), tail) => Cons(elem, values(tail)) ;
-
-  };
-
-
-
-/**
-
- * Returns a set containing all keys of map 'map'.
-
- */
-
-def Set<A> keys<A, B>(Map<A, B> map) =
-
-  case map { 
-
-    EmptyMap => EmptySet ;
-
-    InsertAssoc(Pair(a, _), tail) => insertElement(keys(tail), a); 
-
-  };
-
-    
-
-/**
-
- * Returns the value associated with key 'k' in map 'ms', or 'Nothing'.
-
- */
-
-def Maybe<B> lookup<A, B>(Map<A, B> ms, A k) = // retrieve from the map
-
-  case ms {
-
-     InsertAssoc(Pair(k, y), _) => Just(y);
-
-     InsertAssoc(_, tm) => lookup(tm, k);
-
-     EmptyMap => Nothing;
-
-  };
-
-
-
-/**
-
- * Compatibility stub for #342. DEPRECATED!
-
- */
-
-def Maybe<B> lookupMaybe<A, B>(Map<A, B> ms, A k) = lookup(ms, k);
-
-
-
-/**
-
- * Returns the value associated with key 'k' in map 'ms',
-
- * or fails if not present.
-
- */
-
-def B lookupUnsafe<A, B>(Map<A, B> ms, A k) = // retrieve from the map
-
-  fromJust(lookup(ms,k));
-
-  
-
-/**
-
- * Returns the value associated with key 'k' in map 'ms', or the value 'd'
-
- * if 'k' has no entry in 'ms'.
-
- */
-
-def B lookupDefault<A, B>(Map<A, B> ms, A k, B d) = // retrieve from the map
-
-  case ms {
-
-     InsertAssoc(Pair(k, y), _) => y;
-
-     InsertAssoc(_, tm) => lookupDefault(tm, k, d);
-
-     EmptyMap => d;
-
-  };
-
-
-
-/**
-
- * Returns a map with all entries of 'map' plus an entry 'p',
-
- * which might override but not remove another entry with the same key.
-
- */
-
-def Map<A, B> insert<A, B>(Map<A, B> map, Pair<A, B> p) = InsertAssoc(p, map);
-
-
-
-/**
-
- * Returns a map with all entries of 'ms' plus an entry mapping 'k' to 'v',
-
- * minus the first entry already mapping 'k' to a value.
-
- */  
-
-def Map<A, B> put<A, B>(Map<A, B> ms, A k, B v) =
-
-  case ms {
-
-    EmptyMap => InsertAssoc(Pair(k, v),EmptyMap);
-
-    InsertAssoc(Pair(k, _), ts) => InsertAssoc(Pair(k, v), ts);
-
-    InsertAssoc(p, ts) => InsertAssoc(p, put(ts, k, v));
-
-  };
-
-
 // module FRH;
 
-// import * from ABS.SetsMaps;
 // import * from ABS.DC;
 
 // TYPE SYNONYMS AND DATATYPES
@@ -1434,7 +789,7 @@ interface DeployerIF {
 }
 
 interface InfrastructureService {
-  DeploymentComponent acquireInstance(Int id, VMType vmType);
+  DeploymentComponent acquireInstance_(Int id, VMType vmType);
   Unit release(DeploymentComponent component);
 }
 
@@ -1557,7 +912,7 @@ class InfrastructureServiceImpl(CloudProvider cp) implements InfrastructureServi
     InfRat cpu = cf.get;
     return truncate(finvalue(cpu));
   }
-  DeploymentComponent acquireInstance(Int id, VMType vmType){
+  DeploymentComponent acquireInstance_(Int id, VMType vmType){
     DeploymentComponent vm = null;
     Map<Resourcetype, Rat> resourceConfig = vmResources(vmType);
     Maybe<DeploymentComponent> md = lookup(inUse, id);
@@ -1754,13 +1109,13 @@ class DeploymentServiceImpl implements DeploymentService {
     services = InsertAssoc( Pair( serviceId, service ), services );
     return service;
   }
-  Service lookup(Int id){
+  Service lookup_(Int id){
     Maybe<Service> s = lookup(services, id);
     assert ( s != Nothing );
     return fromJust(s);
   }
   Unit uninstallDS(Int serviceId){
-    Service service = this.lookup(serviceId);
+    Service service = this.lookup_(serviceId);
     Fut<State> tmp1240537166 = service!getStatus();
     await tmp1240537166?;
     State state = tmp1240537166.get;
@@ -1774,17 +1129,17 @@ class DeploymentServiceImpl implements DeploymentService {
     allocations = removeKey(allocations, service);
     services = removeKey(services, serviceId);
   }
-  Unit invoke(Int serviceId, State state){
-    Service service = this.lookup(serviceId);
+  Unit invoke_(Int serviceId, State state){
+    Service service = this.lookup_(serviceId);
     Fut<Unit> tmp1937294500 = service!setStatus(state);
     await tmp1937294500?;
     tmp1937294500.get;
   }
   Unit startDS(Int serviceId){
-    this.invoke(serviceId, RUNNING);
+    this.invoke_(serviceId, RUNNING);
   }
   Unit stopDS(Int serviceId){
-    this.invoke(serviceId, STOP);
+    this.invoke_(serviceId, STOP);
   }
   Unit addDS(DeploymentAgent agent){
     Fut<Service> tmp908802124 = agent!getServiceDA();
@@ -2529,7 +1884,7 @@ class AddQueryServicesDeployerImpl(CloudProvider cloudProvider, MonitorPlatformS
 // FRH MAIN
 ///////////
 {
-  CloudProvider cp = new local SimCloudProvider("CloudProvider"); //MADELOCAL
+  ISmartCloudProvider cp = new local SmartCloudProvider("CloudProvider"); //MADELOCAL
   cp.addSmartDeployInstances();
   SmartDeployInterface c1 = new local MainSmartDeployer(cp); //MADELOCAL
   c1.deploy();

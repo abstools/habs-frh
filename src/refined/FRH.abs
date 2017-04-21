@@ -1,51 +1,150 @@
 module FRH;
 
-import * from ABS.SetsMaps;
 import * from ABS.DC;
+
+interface ISmartCloudProvider extends CloudProvider {
+  Unit addSmartDeployInstances();
+}
+
+
+class SmartCloudProvider(String name) implements ISmartCloudProvider {
+    CloudProvider wrapped;
+    {
+      wrapped = new local SimCloudProvider(name);
+    }
+     Unit shutdown() { 
+      return wrapped.shutdown();
+    }
+
+    DeploymentComponent prelaunchInstance(Map<Resourcetype, Rat> d) {
+      return wrapped.prelaunchInstance(d);
+    }
+
+    DeploymentComponent prelaunchInstanceNamed(String instancename) {
+      return wrapped.prelaunchInstanceNamed(instancename);
+    }
+
+    DeploymentComponent launchInstance(Map<Resourcetype, Rat> d) {
+      return wrapped.launchInstance(d);
+    }
+
+    DeploymentComponent launchInstanceNamed(String instancename) {
+      return wrapped.launchInstanceNamed(instancename);
+    }
+
+    Bool acquireInstance(DeploymentComponent instance_) {
+      return wrapped.acquireInstance(instance_);
+    }
+    Bool releaseInstance(DeploymentComponent instance_) {
+      return wrapped.releaseInstance(instance_);
+    }
+
+    Bool shutdownInstance(DeploymentComponent instance_) {
+      return wrapped.shutdownInstance(instance_);
+    }
+
+    Rat getAccumulatedCost() {
+      return wrapped.getAccumulatedCost();
+    }
+
+    // Sets up information for [pre]launchInstanceNamed()
+     Unit setInstanceDescriptions(Map<String, Map<Resourcetype, Rat>> instanceDescriptions) {
+      return wrapped.setInstanceDescriptions(instanceDescriptions);
+    }
+
+    // Adds an instance for [pre]launchInstanceNamed()
+     Unit addInstanceDescription(Pair<String, Map<Resourcetype, Rat>> instanceDescription) {
+      return wrapped.addInstanceDescription(instanceDescription);
+    }
+
+    // Removes an instance for [pre]launchInstanceNamed() based on its name
+     Unit removeInstanceDescription(String instanceDescriptionName) {
+      return wrapped.removeInstanceDescription(instanceDescriptionName);
+    }
+
+     Map<String, Map<Resourcetype, Rat>> getInstanceDescriptions() {
+      return wrapped.getInstanceDescriptions();
+    }
+
+
+    Unit addSmartDeployInstances(){
+    this.addInstanceDescription(Pair( "c4_2xlarge_eu", map(Cons( Pair( CostPerInterval, 419 ), Cons( Pair( Cores, 8 ), Cons( Pair( Memory, 1500 ), Cons( Pair( Speed, 31 ), Nil ) ) ) )) ));
+    this.addInstanceDescription(Pair( "m4_large_eu", map(Cons( Pair( CostPerInterval, 120 ), Cons( Pair( Cores, 2 ), Cons( Pair( Memory, 800 ), Cons( Pair( Speed, 6 ), Nil ) ) ) )) ));
+    this.addInstanceDescription(Pair( "m4_xlarge_eu", map(Cons( Pair( CostPerInterval, 239 ), Cons( Pair( Cores, 4 ), Cons( Pair( Memory, 1600 ), Cons( Pair( Speed, 13 ), Nil ) ) ) )) ));
+    this.addInstanceDescription(Pair( "m4_large_us2", map(Cons( Pair( CostPerInterval, 120 ), Cons( Pair( Cores, 2 ), Cons( Pair( Memory, 800 ), Cons( Pair( Speed, 6 ), Nil ) ) ) )) ));
+    this.addInstanceDescription(Pair( "c4_2xlarge_us1", map(Cons( Pair( CostPerInterval, 419 ), Cons( Pair( Cores, 8 ), Cons( Pair( Memory, 1500 ), Cons( Pair( Speed, 31 ), Nil ) ) ) )) ));
+    this.addInstanceDescription(Pair( "c4_2xlarge_us2", map(Cons( Pair( CostPerInterval, 419 ), Cons( Pair( Cores, 8 ), Cons( Pair( Memory, 1500 ), Cons( Pair( Speed, 31 ), Nil ) ) ) )) ));
+    this.addInstanceDescription(Pair( "m4_large_us1", map(Cons( Pair( CostPerInterval, 120 ), Cons( Pair( Cores, 2 ), Cons( Pair( Memory, 800 ), Cons( Pair( Speed, 6 ), Nil ) ) ) )) ));
+    this.addInstanceDescription(Pair( "c4_xlarge_eu", map(Cons( Pair( CostPerInterval, 209 ), Cons( Pair( Cores, 4 ), Cons( Pair( Memory, 750 ), Cons( Pair( Speed, 16 ), Nil ) ) ) )) ));
+    this.addInstanceDescription(Pair( "c4_xlarge_us1", map(Cons( Pair( CostPerInterval, 209 ), Cons( Pair( Cores, 4 ), Cons( Pair( Memory, 750 ), Cons( Pair( Speed, 16 ), Nil ) ) ) )) ));
+    this.addInstanceDescription(Pair( "c4_xlarge_us2", map(Cons( Pair( CostPerInterval, 209 ), Cons( Pair( Cores, 4 ), Cons( Pair( Memory, 750 ), Cons( Pair( Speed, 16 ), Nil ) ) ) )) ));
+    this.addInstanceDescription(Pair( "m4_xlarge_us2", map(Cons( Pair( CostPerInterval, 239 ), Cons( Pair( Cores, 4 ), Cons( Pair( Memory, 1600 ), Cons( Pair( Speed, 13 ), Nil ) ) ) )) ));
+    this.addInstanceDescription(Pair( "m4_xlarge_us1", map(Cons( Pair( CostPerInterval, 239 ), Cons( Pair( Cores, 4 ), Cons( Pair( Memory, 1600 ), Cons( Pair( Speed, 13 ), Nil ) ) ) )) ));
+    this.addInstanceDescription(Pair("t2_small_us1",
+            map[Pair(CostPerInterval,26)
+            ,Pair(Cores,1)
+            ,Pair(Memory,200)
+            ,Pair(Speed,3)
+            //,Pair(Startupduration,7000)
+            ]));
+    this.addInstanceDescription(Pair("t2_small_us2",
+            map[Pair(CostPerInterval,26)
+            ,Pair(Cores,1)
+            ,Pair(Memory,200)
+            ,Pair(Speed,3)
+            //,Pair(Startupduration,7000)
+            ]));
+  }
+
+}
+
+// module FRH;
+
+// import * from ABS.DC;
 
 // TYPE SYNONYMS AND DATATYPES
 //////////////////////////////
 
-type Customer = String;
+//type Customer = String;
 data Degradation_States = S;
-type Id = Int;
-type Request = Int;
-type Response = Bool;
+//type Id = Int;
+//type Request = Int;
+//type Response = Bool;
 data ServiceType = FAS| SUGGEST| DM;
-data Config = Config_(ServiceType serviceType, List<ResourceCapacities> instances_);
+data Config = Config_(ServiceType serviceType, List<Map<Resourcetype, Rat>> instances_);
 data State = RUNNING| STOP;
 data VMType = T2_MICRO| T2_SMALL| T2_MEDIUM| M4_LARGE| M4_XLARGE| M4_2XLARGE| M4_10XLARGE| M3_MEDIUM| M3_LARGE| M3_XLARGE| M3_2XLARGE| C4_LARGE| C4_XLARGE| C4_2XLARGE| C4_4XLARGE| C4_8XLARGE;
-type ResourceCapacities = Map<Resourcetype, Rat>;
+//type ResourceCapacities = Map<Resourcetype, Rat>;
 data LBOp = INCR| DECR;
 data Rule = Rule_(Int interval, Monitor monitor_);
 data Scale = UP| DOWN;
-type CustomerConfig = Pair<Customer, List<Pair<Config, Int>>>;
+//type CustomerConfig = Pair<String, List<Pair<Config, Int>>>;  // DEAD CODE
 
 data DeployParamSpecification = Req| List(Int)| Default(String)| User_| OptList(String);
 data DeployScenarioElement = MaxUse(Int)| Cost(String, Int)| Param(String, DeployParamSpecification)| Name(String);
 type Deploy = List<DeployScenarioElement>;
-type SmartDeploy = String;
-type SmartDeployCloudProvider = String;
+//type SmartDeploy = String;
+//type SmartDeployCloudProvider = String;
 
 
 // SPECIFIC FUNCTIONS
 /////////////////////
 
-def Id init() = 1;
+def Int init() = 1;
 
-def Id incr(Id id) = ( id + 1 );
+def Int incr(Int id) = ( id + 1 );
 
-def Int cost(Request request) = request;
+def Int cost(Int request) = request;
 
-def Response success() = True;
+def Bool success() = True;
 
-def Bool isSuccess(Response response) = response;
+def Bool isSuccess(Bool response) = response;
 
 def Set<VMType> vmTypesCollection() = 
   set(Cons( T2_MICRO, Cons( T2_SMALL, Cons( T2_MEDIUM, Cons( M4_LARGE, Cons( M4_XLARGE, Cons( M4_2XLARGE, Cons( M4_10XLARGE, Cons( M3_MEDIUM, Cons( M3_LARGE, Cons( M3_XLARGE, Cons( M3_2XLARGE, Cons( C4_LARGE, Cons( C4_XLARGE, Cons( C4_2XLARGE, Cons( C4_4XLARGE, Cons( C4_8XLARGE, Nil ) ) ) ) ) ) ) ) ) ) ) ) ) ) ) ));
 
 
-def ResourceCapacities vmResources(VMType v) = 
+def Map<Resourcetype, Rat> vmResources(VMType v) = 
   case v {
     T2_MICRO => map(Cons( Pair( Memory, 1 ), Cons( Pair( Speed, 1 ), Nil ) ));
     T2_SMALL => map(Cons( Pair( Memory, 2 ), Cons( Pair( Speed, 1 ), Nil ) ));
@@ -65,7 +164,7 @@ def ResourceCapacities vmResources(VMType v) =
     C4_8XLARGE => map(Cons( Pair( Memory, 60 ), Cons( Pair( Speed, 36 ), Nil ) ));
   };
 
-def Map<String, ResourceCapacities> amazonInstances() = 
+def Map<String, Map<Resourcetype, Rat>> amazonInstances() = 
   map(Cons( Pair( "T2_MICRO", map(Cons( Pair( Memory, 1 ), Cons( Pair( Speed, 1 ), Nil ) )) ), Cons( Pair( "T2_SMALL", map(Cons( Pair( Memory, 2 ), Cons( Pair( Speed, 1 ), Nil ) )) ), Cons( Pair( "T2_MEDIUM", map(Cons( Pair( Memory, 4 ), Cons( Pair( Speed, 2 ), Nil ) )) ), Cons( Pair( "M4_LARGE", map(Cons( Pair( Memory, 8 ), Cons( Pair( Speed, 2 ), Nil ) )) ), Cons( Pair( "M4_XLARGE", map(Cons( Pair( Memory, 16 ), Cons( Pair( Speed, 4 ), Nil ) )) ), Cons( Pair( "M4_2XLARGE", map(Cons( Pair( Memory, 32 ), Cons( Pair( Speed, 8 ), Nil ) )) ), Cons( Pair( "M4_10XLARGE", map(Cons( Pair( Memory, 160 ), Cons( Pair( Speed, 40 ), Nil ) )) ), Cons( Pair( "M3_MEDIUM", map(Cons( Pair( Memory, ( 3750 / 1000 ) ), Cons( Pair( Speed, 1 ), Nil ) )) ), Cons( Pair( "M3_LARGE", map(Cons( Pair( Memory, ( 7500 / 1000 ) ), Cons( Pair( Speed, 2 ), Nil ) )) ), Cons( Pair( "M3_XLARGE", map(Cons( Pair( Memory, 15 ), Cons( Pair( Speed, 4 ), Nil ) )) ), Cons( Pair( "M3_2XLARGE", map(Cons( Pair( Memory, 30 ), Cons( Pair( Speed, 8 ), Nil ) )) ), Cons( Pair( "C4_LARGE", map(Cons( Pair( Memory, ( 3750 / 1000 ) ), Cons( Pair( Speed, 2 ), Nil ) )) ), Cons( Pair( "C4_XLARGE", map(Cons( Pair( Memory, ( 7500 / 1000 ) ), Cons( Pair( Speed, 4 ), Nil ) )) ), Cons( Pair( "C4_2XLARGE", map(Cons( Pair( Memory, 15 ), Cons( Pair( Speed, 8 ), Nil ) )) ), Cons( Pair( "C4_4XLARGE", map(Cons( Pair( Memory, 30 ), Cons( Pair( Speed, 16 ), Nil ) )) ), Cons( Pair( "C4_8XLARGE", map(Cons( Pair( Memory, 60 ), Cons( Pair( Speed, 36 ), Nil ) )) ), Nil ) ) ) ) ) ) ) ) ) ) ) ) ) ) ) ));
 
 
@@ -116,7 +215,7 @@ def Maybe<Pair<Config, Int>> lookupService(Map<Config, Int> cs, ServiceType s) =
     InsertAssoc( _, ms ) => lookupService(ms, s);
   };
 
-def Maybe<Pair<Config, Int>> lookupCustomerService(Map<Customer, Map<Config, Int>> cs, Customer c, ServiceType s) = 
+def Maybe<Pair<Config, Int>> lookupCustomerService(Map<String, Map<Config, Int>> cs, String c, ServiceType s) = 
   case lookupDefault(cs, c, EmptyMap) {
     EmptyMap => Nothing;
     map => lookupService(map, s);
@@ -129,7 +228,7 @@ def Map<Config, Int> removeLocalEndPoint(Map<Config, Int> cs, Int e) =
     InsertAssoc( kv, ms ) => InsertAssoc( kv, removeLocalEndPoint(ms, e) );
   };
 
-def Map<Customer, Map<Config, Int>> removeGlobalEndPoint(Map<Customer, Map<Config, Int>> cs, Int e) = 
+def Map<String, Map<Config, Int>> removeGlobalEndPoint(Map<String, Map<Config, Int>> cs, Int e) = 
   case cs {
     EmptyMap => EmptyMap;
     InsertAssoc( Pair( c, map ), cs ) => case removeLocalEndPoint(map, e) {
@@ -147,7 +246,7 @@ def Maybe<Pair<X, Y>> keyPairs<X, Y, Z>(Map<X, Map<Y, Z>> map, Z z) =
     };
   };
 
-def Map<Customer, Map<Config, Int>> updateConfig(Map<Customer, Map<Config, Int>> cs, Customer c, Config o, Config n) = 
+def Map<String, Map<Config, Int>> updateConfig(Map<String, Map<Config, Int>> cs, String c, Config o, Config n) = 
   case lookup(cs, c) {
     Nothing => cs;
     Just( cm ) => case lookup(cm, o) {
@@ -321,9 +420,9 @@ interface DegradationMetricIf {
 class DegradationMetricImpl implements DegradationMetricIf {
   List<Pair<String, Rat>> slowQpct = Nil;
   Map<String, Rat> degradationSLA = map(Cons( Pair( "asos.fas.live.200ms", ( 5 / 1000 ) ), Cons( Pair( "asos.fas.live.500ms", ( 1 / 1000 ) ), Cons( Pair( "gamma.fas.live.500ms", ( 5 / 100 ) ), Cons( Pair( "gamma.fas.live.500ms", ( 1 / 100 ) ), Nil ) ) ) ));
-  Map<Customer, Int> cnt = EmptyMap;
-  Map<Customer, Int> slow200Cnt = EmptyMap;
-  Map<Customer, Int> slow500Cnt = EmptyMap;
+  Map<String, Int> cnt = EmptyMap;
+  Map<String, Int> slow200Cnt = EmptyMap;
+  Map<String, Int> slow500Cnt = EmptyMap;
   Degradation_States curState = S;
   
   List<Pair<String, Rat>> notify_query_Met(Time t, String customer, Rat procTime){
@@ -676,12 +775,12 @@ interface DeployerIF {
 }
 
 interface InfrastructureService {
-  DeploymentComponent acquireInstance(Id id, VMType vmType);
+  DeploymentComponent acquireInstance_(Int id, VMType vmType);
   Unit release(DeploymentComponent component);
 }
 
 interface EndPoint {
-  Response invoke(Request request);
+  Bool invoke(Int request);
   Unit setStatus(State status);
   State getStatus();
 }
@@ -693,10 +792,10 @@ interface LoadBalancerEndPoint extends EndPoint {
 }
 
 interface Service extends EndPoint {
-  Id getServiceId();
-  Unit setServiceId(Id id);
+  Int getServiceId();
+  Unit setServiceId(Int id);
   ServiceType getServiceType();
-  Customer getCustomer();
+  String getCustomer();
   Int getLatency();
   Int getRequestCount();
   Int getCPU();
@@ -706,10 +805,10 @@ interface Service extends EndPoint {
 }
 
 interface DeploymentService {
-  Service installDS(Customer customer, ServiceType st, Id serviceId, VMType v);
-  Unit uninstallDS(Id serviceId);
-  Unit startDS(Id serviceId);
-  Unit stopDS(Id serviceId);
+  Service installDS(String customer, ServiceType st, Int serviceId, VMType v);
+  Unit uninstallDS(Int serviceId);
+  Unit startDS(Int serviceId);
+  Unit stopDS(Int serviceId);
   Unit addDS(DeploymentAgent agent);
 }
 
@@ -722,33 +821,33 @@ interface DeploymentAgent {
 }
 
 interface LoadBalancerService {
-  Bool disable(Id endPointId);
-  Bool enable(Id endPointId);
+  Bool disable(Int endPointId);
+  Bool enable(Int endPointId);
   Bool create(List<Service> services, Int endPointId);
   Bool addLBS(Int endPointId, LoadBalancerEndPoint ep);
-  Bool removeLBS(Id endPointId);
-  Maybe<Id> getEndPointId(LoadBalancerEndPoint lb);
+  Bool removeLBS(Int endPointId);
+  Maybe<Int> getEndPointId(LoadBalancerEndPoint lb);
   Maybe<LoadBalancerEndPoint> getEndPointById(Int endPointId);
-  List<Id> getEndPointIdsByService(Service s);
-  Bool decrease(Id endPointId, List<Service> services);
-  Bool increase(Id endPointId, List<Service> services);
+  List<Int> getEndPointIdsByService(Service s);
+  Bool decrease(Int endPointId, List<Service> services);
+  Bool increase(Int endPointId, List<Service> services);
 }
 
 interface PlatformService {
-  Id createService(Config config, Customer customer);
-  Unit removeService(Id endPoint);
+  Int createService(Config config, String customer);
+  Unit removeService(Int endPoint);
 }
 
 interface MonitorPlatformService extends PlatformService {
-  Unit incrService(Id endPoint, List<ResourceCapacities> instances);
-  Unit decrService(Id endPoint, List<Id> serviceIds);
-  List<Id> getEndPoints();
-  Maybe<Service> getServiceMPS(Id serviceId);
-  List<Id> getServiceIds(Id endPoint);
-  Unit alterResource(Id serviceId, Resourcetype t, Rat r);
-  Id addEndPoint(LoadBalancerEndPoint lb);
-  Id removeEndPoint(LoadBalancerEndPoint lb);
-  Id addServiceInstance(Service s);
+  Unit incrService(Int endPoint, List<Map<Resourcetype, Rat>> instances);
+  Unit decrService(Int endPoint, List<Int> serviceIds);
+  List<Int> getEndPoints();
+  Maybe<Service> getServiceMPS(Int serviceId);
+  List<Int> getServiceIds(Int endPoint);
+  Unit alterResource(Int serviceId, Resourcetype t, Rat r);
+  Int addEndPoint(LoadBalancerEndPoint lb);
+  Int removeEndPoint(LoadBalancerEndPoint lb);
+  Int addServiceInstance(Service s);
 }
 
 // interface User {
@@ -761,8 +860,8 @@ interface MonitoringService {
 }
 
 interface ServiceProvider {
-  EndPoint addCustomer(Config sc, Customer c);
-  Unit removeCustomer(Config sc, Customer c);
+  EndPoint addCustomer(Config sc, String c);
+  Unit removeCustomer(Config sc, String c);
 }
 
 interface Item {
@@ -774,7 +873,7 @@ interface IQueryService extends Service {
 }
 
 interface MonitoringQueryEndpoint extends EndPoint {
-  [HTTPCallable] Unit invokeWithDelay(Int proctime, Customer customer, Int amazonECU, Int delay);
+  [HTTPCallable] Unit invokeWithDelay(Int proctime, String customer, Int amazonECU, Int delay);
 }
 
 interface UtilityFunctions {
@@ -792,16 +891,16 @@ class DeployerImpl implements DeployerIF {
 
 class InfrastructureServiceImpl(CloudProvider cp) implements InfrastructureService {
   Int total = 0;
-  Map<Id, DeploymentComponent> inUse = EmptyMap;
+  Map<Int, DeploymentComponent> inUse = EmptyMap;
   
   Int cpu(DeploymentComponent dc){
     Fut<InfRat> cf = dc!total(Speed);
     InfRat cpu = cf.get;
     return truncate(finvalue(cpu));
   }
-  DeploymentComponent acquireInstance(Id id, VMType vmType){
+  DeploymentComponent acquireInstance_(Int id, VMType vmType){
     DeploymentComponent vm = null;
-    ResourceCapacities resourceConfig = vmResources(vmType);
+    Map<Resourcetype, Rat> resourceConfig = vmResources(vmType);
     Maybe<DeploymentComponent> md = lookup(inUse, id);
     case md {
       Nothing => {
@@ -854,7 +953,7 @@ class LoadBalancerEndPointImpl implements LoadBalancerEndPoint {
     }
     return result;
   }
-  Response invoke(Request request){
+  Bool invoke(Int request){
     log = ( log + 1 );
     assert ( state == RUNNING );
     if ( ( current == Nil ) ){
@@ -877,7 +976,7 @@ class LoadBalancerEndPointImpl implements LoadBalancerEndPoint {
   }
 }
 
-class ServiceImpl(Id serviceId, ServiceType st, Customer c, Int cost) implements Service {
+class ServiceImpl(Int serviceId, ServiceType st, String c, Int cost) implements Service {
   Int latency = 0;
   Int log = 0;
   State state = STOP;
@@ -918,14 +1017,14 @@ class ServiceImpl(Id serviceId, ServiceType st, Customer c, Int cost) implements
   Unit setStatus(State state_){
     this.state = state_;
   }
-  Id getServiceId(){
+  Int getServiceId(){
     return serviceId;
   }
-  Unit setServiceId(Id id){
+  Unit setServiceId(Int id){
     assert ( serviceId == 0 );
     serviceId = id;
   }
-  Response invoke(Request request){
+  Bool invoke(Int request){
     assert ( state == RUNNING );
     Int cost = cost(request);
     Rat time = currentms();
@@ -938,7 +1037,7 @@ class ServiceImpl(Id serviceId, ServiceType st, Customer c, Int cost) implements
   ServiceType getServiceType(){
     return st;
   }
-  Customer getCustomer(){
+  String getCustomer(){
     return c;
   }
 }
@@ -983,9 +1082,9 @@ class DeploymentAgentImpl implements DeploymentAgent {
 [Deploy : scenario(Cons( Cost( "Cores", 1 ), Cons( Cost( "Memory", 10 ), Cons( Param( "DeploymentAgent", OptList( "add" ) ), Nil ) ) ))]
 class DeploymentServiceImpl implements DeploymentService {
   Map<Service, DeploymentAgent> allocations = EmptyMap;
-  Map<Id, Service> services = EmptyMap;
+  Map<Int, Service> services = EmptyMap;
   
-  Service installDS(Customer customer, ServiceType st, Id serviceId, VMType v){
+  Service installDS(String customer, ServiceType st, Int serviceId, VMType v){
     assert ( lookup(services, serviceId) == Nothing );
     Service service = new ServiceImpl(serviceId, st, customer, 2);
     DeploymentAgent agent = new DeploymentAgentImpl();
@@ -996,13 +1095,13 @@ class DeploymentServiceImpl implements DeploymentService {
     services = InsertAssoc( Pair( serviceId, service ), services );
     return service;
   }
-  Service lookup(Id id){
+  Service lookup_(Int id){
     Maybe<Service> s = lookup(services, id);
     assert ( s != Nothing );
     return fromJust(s);
   }
-  Unit uninstallDS(Id serviceId){
-    Service service = this.lookup(serviceId);
+  Unit uninstallDS(Int serviceId){
+    Service service = this.lookup_(serviceId);
     Fut<State> tmp1240537166 = service!getStatus();
     await tmp1240537166?;
     State state = tmp1240537166.get;
@@ -1016,17 +1115,17 @@ class DeploymentServiceImpl implements DeploymentService {
     allocations = removeKey(allocations, service);
     services = removeKey(services, serviceId);
   }
-  Unit invoke(Id serviceId, State state){
-    Service service = this.lookup(serviceId);
+  Unit invoke_(Int serviceId, State state){
+    Service service = this.lookup_(serviceId);
     Fut<Unit> tmp1937294500 = service!setStatus(state);
     await tmp1937294500?;
     tmp1937294500.get;
   }
-  Unit startDS(Id serviceId){
-    this.invoke(serviceId, RUNNING);
+  Unit startDS(Int serviceId){
+    this.invoke_(serviceId, RUNNING);
   }
-  Unit stopDS(Id serviceId){
-    this.invoke(serviceId, STOP);
+  Unit stopDS(Int serviceId){
+    this.invoke_(serviceId, STOP);
   }
   Unit addDS(DeploymentAgent agent){
     Fut<Service> tmp908802124 = agent!getServiceDA();
@@ -1034,7 +1133,7 @@ class DeploymentServiceImpl implements DeploymentService {
     Service s = tmp908802124.get;
     Fut<Int> tmp433699465 = s!getServiceId();
     await tmp433699465?;
-    Id serviceId = tmp433699465.get;
+    Int serviceId = tmp433699465.get;
     assert ( serviceId != 0 );
     allocations = InsertAssoc( Pair( s, agent ), allocations );
     services = InsertAssoc( Pair( serviceId, s ), services );
@@ -1047,7 +1146,7 @@ class DeploymentServiceImpl implements DeploymentService {
 class LoadBalancerServiceImpl implements LoadBalancerService {
   Map<Int, LoadBalancerEndPoint> endPoints = EmptyMap;
   
-  Bool change(Id endPointId, List<Service> services_, LBOp op){
+  Bool change(Int endPointId, List<Service> services_, LBOp op){
     Bool result = False;
     List<Service> services = services_;
     Maybe<LoadBalancerEndPoint> ep = lookup(endPoints, endPointId);
@@ -1067,15 +1166,15 @@ class LoadBalancerServiceImpl implements LoadBalancerService {
     }
     return result;
   }
-  Bool decrease(Id endPointId, List<Service> services){
+  Bool decrease(Int endPointId, List<Service> services){
     Bool result = this.change(endPointId, services, DECR);
     return result;
   }
-  Bool increase(Id endPointId, List<Service> services){
+  Bool increase(Int endPointId, List<Service> services){
     Bool result = this.change(endPointId, services, INCR);
     return result;
   }
-  Bool status(Id id, State state){
+  Bool status(Int id, State state){
     Maybe<EndPoint> mep = lookup(endPoints, id);
     Bool success = False;
     if ( ( mep != Nothing ) ){
@@ -1087,10 +1186,10 @@ class LoadBalancerServiceImpl implements LoadBalancerService {
     }
     return success;
   }
-  Bool disable(Id id){
+  Bool disable(Int id){
     return this.status(id, STOP);
   }
-  Bool enable(Id id){
+  Bool enable(Int id){
     return this.status(id, RUNNING);
   }
   Bool create(List<Service> services_, Int endPointId){
@@ -1120,7 +1219,7 @@ class LoadBalancerServiceImpl implements LoadBalancerService {
     }
     return added;
   }
-  Bool removeLBS(Id endPointId){
+  Bool removeLBS(Int endPointId){
     Bool removed = False;
     Maybe<EndPoint> mep = lookup(endPoints, endPointId);
     if ( ( mep != Nothing ) ){
@@ -1134,19 +1233,19 @@ class LoadBalancerServiceImpl implements LoadBalancerService {
     }
     return removed;
   }
-  Maybe<LoadBalancerEndPoint> getEndPointById(Id endPointId){
+  Maybe<LoadBalancerEndPoint> getEndPointById(Int endPointId){
     return lookup(endPoints, endPointId);
   }
-  List<Id> getEndPointIdsByService(Service s){
+  List<Int> getEndPointIdsByService(Service s){
     List<LoadBalancerEndPoint> endPointsToCheck = values(endPoints);
-    List<Id> foundEndPoints = Nil;
+    List<Int> foundEndPoints = Nil;
     while (( endPointsToCheck != Nil )) {
       LoadBalancerEndPoint lb = head(endPointsToCheck);
       Fut<List<Service>> tmp379407034 = lb!getServices();
       await tmp379407034?;
       List<Service> services = tmp379407034.get;
       if ( inList(services, s) ){
-        Maybe<Id> mep = mapValue(endPoints, lb);
+        Maybe<Int> mep = mapValue(endPoints, lb);
         case mep {
           Nothing => {
             foundEndPoints = Nil;
@@ -1160,33 +1259,33 @@ class LoadBalancerServiceImpl implements LoadBalancerService {
     }
     return foundEndPoints;
   }
-  Maybe<Id> getEndPointId(LoadBalancerEndPoint lb){
+  Maybe<Int> getEndPointId(LoadBalancerEndPoint lb){
     return mapValue(endPoints, lb);
   }
 }
 
 [Deploy : scenario(Cons( Cost( "Cores", 2 ), Cons( Cost( "Memory", 1200 ), Cons( Param( "ds", Req ), Cons( Param( "ls", Req ), Cons( Param( "LoadBalancerEndPoint", OptList( "addEndPoint" ) ), Cons( Param( "Service", OptList( "addServiceInstance" ) ), Nil ) ) ) ) ) ))]
 class PlatformServiceImpl(DeploymentService ds, LoadBalancerService ls) implements MonitorPlatformService {
-  Map<Id, Service> services = EmptyMap;
-  Map<Id, Int> serviceToEndPoints = EmptyMap;
-  Map<Id, List<Id>> endPoints = EmptyMap;
-  Map<Customer, Map<Config, Id>> customers = EmptyMap;
-  Id serviceId = init();
+  Map<Int, Service> services = EmptyMap;
+  Map<Int, Int> serviceToEndPoints = EmptyMap;
+  Map<Int, List<Int>> endPoints = EmptyMap;
+  Map<String, Map<Config, Int>> customers = EmptyMap;
+  Int serviceId = init();
   
-  Id createService(Config config, Customer customer){
+  Int createService(Config config, String customer){
     ServiceType st = serviceType(config);
     assert ( lookupCustomerService(customers, customer, st) == Nothing );
-    List<ResourceCapacities> instances = instances_(config);
+    List<Map<Resourcetype, Rat>> instances = instances_(config);
     assert ( instances != Nil );
     serviceId = incr(serviceId);
     Int endPoint = serviceId;
     List<Service> currentServices = Nil;
-    List<Id> ids = Nil;
+    List<Int> ids = Nil;
     while (( instances != Nil )) {
-      ResourceCapacities res = head(instances);
+      Map<Resourcetype, Rat> res = head(instances);
       Service service = this.createServiceInstance(customer, st, res);
-      Fut<Id> idf = service!getServiceId();
-      Id id = idf.get;
+      Fut<Int> idf = service!getServiceId();
+      Int id = idf.get;
       ids = Cons( id, ids );
       serviceToEndPoints = InsertAssoc( Pair( id, endPoint ), serviceToEndPoints );
       currentServices = Cons( service, currentServices );
@@ -1211,9 +1310,9 @@ class PlatformServiceImpl(DeploymentService ds, LoadBalancerService ls) implemen
     await tmp1576354454?;
     b = tmp1576354454.get;
     assert b;
-    List<Id> sids = lookupDefault(endPoints, endPoint, Nil);
+    List<Int> sids = lookupDefault(endPoints, endPoint, Nil);
     while (( sids != Nil )) {
-      Id id = head(sids);
+      Int id = head(sids);
       services = removeKey(services, id);
       serviceToEndPoints = removeKey(serviceToEndPoints, id);
       Fut<Unit> tmp1688710402 = ds!stopDS(id);
@@ -1227,21 +1326,21 @@ class PlatformServiceImpl(DeploymentService ds, LoadBalancerService ls) implemen
     endPoints = removeKey(endPoints, endPoint);
     customers = removeGlobalEndPoint(customers, endPoint);
   }
-  Id addServiceInstance(Service s){
+  Int addServiceInstance(Service s){
     serviceId = incr(serviceId);
-    Id id = serviceId;
+    Int id = serviceId;
     Fut<Unit> tmp305646302 = s!setServiceId(id);
     await tmp305646302?;
     tmp305646302.get;
     services = put(services, id, s);
     Fut<List<Int>> tmp268620232 = ls!getEndPointIdsByService(s);
     await tmp268620232?;
-    List<Id> onEndPoints = tmp268620232.get;
-    List<Id> endPointsToProcess = onEndPoints;
+    List<Int> onEndPoints = tmp268620232.get;
+    List<Int> endPointsToProcess = onEndPoints;
     while (( endPointsToProcess != Nil )) {
-      Id endPointId = head(endPointsToProcess);
+      Int endPointId = head(endPointsToProcess);
       serviceToEndPoints = InsertAssoc( Pair( id, endPointId ), serviceToEndPoints );
-      Maybe<List<Id>> mSerEndpoints = lookup(endPoints, endPointId);
+      Maybe<List<Int>> mSerEndpoints = lookup(endPoints, endPointId);
       case mSerEndpoints {
         Nothing => {
           endPoints = InsertAssoc( Pair( endPointId, list(Cons( id, Nil )) ), endPoints );
@@ -1254,7 +1353,7 @@ class PlatformServiceImpl(DeploymentService ds, LoadBalancerService ls) implemen
     }
     return serviceId;
   }
-  Id addEndPoint(LoadBalancerEndPoint lb){
+  Int addEndPoint(LoadBalancerEndPoint lb){
     serviceId = incr(serviceId);
     Int endPoint = serviceId;
     Fut<List<Service>> tmp948268398 = lb!getServices();
@@ -1265,9 +1364,9 @@ class PlatformServiceImpl(DeploymentService ds, LoadBalancerService ls) implemen
       Service s = head(remaining);
       Fut<Int> tmp1792172929 = s!getServiceId();
       await tmp1792172929?;
-      Id serviceId = tmp1792172929.get;
+      Int serviceId = tmp1792172929.get;
       serviceToEndPoints = put(serviceToEndPoints, serviceId, endPoint);
-      List<Id> connectedIds = lookupDefault(endPoints, endPoint, Nil);
+      List<Int> connectedIds = lookupDefault(endPoints, endPoint, Nil);
       connectedIds = Cons( serviceId, connectedIds );
       endPoints = put(endPoints, endPoint, connectedIds);
     }
@@ -1279,12 +1378,12 @@ class PlatformServiceImpl(DeploymentService ds, LoadBalancerService ls) implemen
     tmp97281693.get;
     return endPoint;
   }
-  Id removeEndPoint(LoadBalancerEndPoint lb){
+  Int removeEndPoint(LoadBalancerEndPoint lb){
     return 0;
   }
-  Service createServiceInstance(Customer customer, ServiceType st, ResourceCapacities resource){
+  Service createServiceInstance(String customer, ServiceType st, Map<Resourcetype, Rat> resource){
     serviceId = incr(serviceId);
-    Id id = serviceId;
+    Int id = serviceId;
     Set<VMType> vms = this.findVM(resource);
     assert ! emptySet(vms);
     VMType v = takeFromSet(vms);
@@ -1295,21 +1394,21 @@ class PlatformServiceImpl(DeploymentService ds, LoadBalancerService ls) implemen
     services = put(services, id, service);
     return service;
   }
-  Unit incrService(Id endPoint, List<ResourceCapacities> instances){
+  Unit incrService(Int endPoint, List<Map<Resourcetype, Rat>> instances){
     assert ( instances != Nil );
-    Maybe<Pair<Customer, Config>> setting = keyPairs(customers, endPoint);
+    Maybe<Pair<String, Config>> setting = keyPairs(customers, endPoint);
     assert ( setting != Nothing );
-    Customer customer = fst(fromJust(setting));
+    String customer = fst(fromJust(setting));
     Config oldC = snd(fromJust(setting));
     ServiceType st = serviceType(oldC);
     List<Service> es = Nil;
-    List<Id> ids = Nil;
-    List<ResourceCapacities> remaining = instances;
+    List<Int> ids = Nil;
+    List<Map<Resourcetype, Rat>> remaining = instances;
     while (( remaining != Nil )) {
-      ResourceCapacities res = head(remaining);
+      Map<Resourcetype, Rat> res = head(remaining);
       Service service = this.createServiceInstance(customer, st, res);
       Fut<Int> idf = service!getServiceId();
-      Id id = idf.get;
+      Int id = idf.get;
       serviceToEndPoints = InsertAssoc( Pair( id, endPoint ), serviceToEndPoints );
       ids = Cons( id, ids );
       es = Cons( service, es );
@@ -1321,20 +1420,20 @@ class PlatformServiceImpl(DeploymentService ds, LoadBalancerService ls) implemen
     assert increased;
     customers = updateConfig(customers, customer, oldC, Config_( st, concatenate(instances, instances_(oldC)) ));
   }
-  Unit decrService(Id endPoint, List<Id> serviceIds){
-    Maybe<Pair<Customer, Config>> setting = keyPairs(customers, endPoint);
+  Unit decrService(Int endPoint, List<Int> serviceIds){
+    Maybe<Pair<String, Config>> setting = keyPairs(customers, endPoint);
     assert ( setting != Nothing );
-    Customer customer = fst(fromJust(setting));
+    String customer = fst(fromJust(setting));
     Config oldC = snd(fromJust(setting));
     ServiceType st = serviceType(oldC);
-    Maybe<List<Id>> msers = lookup(endPoints, endPoint);
+    Maybe<List<Int>> msers = lookup(endPoints, endPoint);
     assert ( msers != Nothing );
-    List<Id> sers = fromJust(msers);
+    List<Int> sers = fromJust(msers);
     assert inListAll(sers, serviceIds);
     List<Service> deployed = Nil;
-    List<Id> remains = serviceIds;
+    List<Int> remains = serviceIds;
     while (( remains != Nil )) {
-      Id serviceId = head(remains);
+      Int serviceId = head(remains);
       Maybe<Service> mdeployed = lookup(services, serviceId);
       assert ( mdeployed != Nothing );
       deployed = Cons( fromJust(mdeployed), deployed );
@@ -1344,9 +1443,9 @@ class PlatformServiceImpl(DeploymentService ds, LoadBalancerService ls) implemen
     Bool decreased = fb.get;
     assert decreased;
     remains = serviceIds;
-    List<ResourceCapacities> current = instances_(oldC);
+    List<Map<Resourcetype, Rat>> current = instances_(oldC);
     while (( remains != Nil )) {
-      Id serviceId = head(remains);
+      Int serviceId = head(remains);
       Fut<Unit> sf = ds!stopDS(serviceId);
       sf.get;
       sf = ds!uninstallDS(serviceId);
@@ -1359,7 +1458,7 @@ class PlatformServiceImpl(DeploymentService ds, LoadBalancerService ls) implemen
     endPoints = put(endPoints, endPoint, difference_(lookupDefault(endPoints, endPoint, Nil), serviceIds));
     customers = updateConfig(customers, customer, oldC, Config_( st, current ));
   }
-  Unit uninstallInstance(Id endPoint, Service s, Id serviceId){
+  Unit uninstallInstance(Int endPoint, Service s, Int serviceId){
     Fut<Bool> bf = ls!decrease(endPoint, list(Cons( s, Nil )));
     bf.get;
     Fut<Unit> uf = ds!stopDS(serviceId);
@@ -1367,7 +1466,7 @@ class PlatformServiceImpl(DeploymentService ds, LoadBalancerService ls) implemen
     uf = ds!uninstallDS(serviceId);
     uf.get;
   }
-  Unit alterResource(Id serviceId, Resourcetype t, Rat r){
+  Unit alterResource(Int serviceId, Resourcetype t, Rat r){
     Maybe<Service> mservice = lookup(services, serviceId);
     assert ( mservice != Nothing );
     Service ser = fromJust(mservice);
@@ -1380,13 +1479,13 @@ class PlatformServiceImpl(DeploymentService ds, LoadBalancerService ls) implemen
         newCapacity = ( v + r );
       }
     }
-    ResourceCapacities req = map(Cons( Pair( t, newCapacity ), Nil ));
+    Map<Resourcetype, Rat> req = map(Cons( Pair( t, newCapacity ), Nil ));
     Maybe<Int> mendPoint = lookup(serviceToEndPoints, serviceId);
     assert ( mendPoint != Nothing );
     Int endPoint = fromJust(mendPoint);
     List<Int> instances = lookupDefault(endPoints, endPoint, Nil);
-    Fut<Customer> fc = ser!getCustomer();
-    Customer customer = fc.get;
+    Fut<String> fc = ser!getCustomer();
+    String customer = fc.get;
     Fut<ServiceType> fs = ser!getServiceType();
     ServiceType st = fs.get;
     Service newSer = this.createServiceInstance(customer, st, req);
@@ -1402,16 +1501,16 @@ class PlatformServiceImpl(DeploymentService ds, LoadBalancerService ls) implemen
     services = removeKey(services, serviceId);
     endPoints = put(endPoints, endPoint, without(allInstances, serviceId));
   }
-  List<Id> getEndPoints(){
+  List<Int> getEndPoints(){
     return toList(keys(endPoints));
   }
-  List<Id> getServiceIds(Id endPoint){
+  List<Int> getServiceIds(Int endPoint){
     return lookupDefault(endPoints, endPoint, Nil);
   }
-  Maybe<Service> getServiceMPS(Id serviceId){
+  Maybe<Service> getServiceMPS(Int serviceId){
     return lookup(services, serviceId);
   }
-  Set<VMType> findVM(ResourceCapacities rc2){
+  Set<VMType> findVM(Map<Resourcetype, Rat> rc2){
     Set<VMType> remaining = vmTypesCollection();
     Set<VMType> res = EmptySet;
     while (! emptySet(remaining)) {
@@ -1424,7 +1523,7 @@ class PlatformServiceImpl(DeploymentService ds, LoadBalancerService ls) implemen
     }
     return res;
   }
-  Bool matchResources(ResourceCapacities rc1, ResourceCapacities rc2){
+  Bool matchResources(Map<Resourcetype, Rat> rc1, Map<Resourcetype, Rat> rc2){
     Bool result = True;
     Set<Resourcetype> resources1 = keys(rc1);
     while (( ( result == True ) && ! emptySet(resources1) )) {
@@ -1544,12 +1643,12 @@ class LatencyMonitor(Int upper, MonitorPlatformService ps) implements Monitor {
     Rat amount = ( cpu * ( latency - ( upper / latency ) ) );
     return max(1, truncate(amount));
   }
-  List<Pair<Id, Int>> getLatencies(Int endPoint){
-    List<Pair<Id, Int>> scaling_ = Nil;
-    Fut<List<Id>> fservices = ps!getServiceIds(endPoint);
-    List<Id> services = fservices.get;
+  List<Pair<Int, Int>> getLatencies(Int endPoint){
+    List<Pair<Int, Int>> scaling_ = Nil;
+    Fut<List<Int>> fservices = ps!getServiceIds(endPoint);
+    List<Int> services = fservices.get;
     while (( services != Nil )) {
-      Id serviceId = head(services);
+      Int serviceId = head(services);
       Fut<Maybe<Service>> lf = ps!getServiceMPS(serviceId);
       Maybe<Service> ml = lf.get;
       assert ( ml != Nothing );
@@ -1566,23 +1665,23 @@ class LatencyMonitor(Int upper, MonitorPlatformService ps) implements Monitor {
   }
   Unit monitor(){
     log = ( log + 1 );
-    List<Triple<Id, Resourcetype, Rat>> scaling_ = Nil;
+    List<Triple<Int, Resourcetype, Rat>> scaling_ = Nil;
     Fut<List<Int>> ef = ps!getEndPoints();
     List<Int> endPoints = ef.get;
     while (( endPoints != Nil )) {
       Int endPoint = head(endPoints);
-      List<Pair<Id, Int>> setting = this.getLatencies(endPoint);
+      List<Pair<Int, Int>> setting = this.getLatencies(endPoint);
       while (( setting != Nil )) {
-        Pair<Id, Int> lat = head(setting);
+        Pair<Int, Int> lat = head(setting);
         setting = tail(setting);
-        Triple<Id, Resourcetype, Rat> h = Triple( fst(lat), Speed, snd(lat) );
+        Triple<Int, Resourcetype, Rat> h = Triple( fst(lat), Speed, snd(lat) );
         scaling_ = Cons( h, scaling_ );
       }
       endPoints = tail(endPoints);
     }
     while (( scaling_ != Nil )) {
-      Triple<Id, Resourcetype, Rat> sc = head(scaling_);
-      Id instance_ = fstT(sc);
+      Triple<Int, Resourcetype, Rat> sc = head(scaling_);
+      Int instance_ = fstT(sc);
       Resourcetype rt = sndT(sc);
       Rat v = trd(sc);
       Fut<Unit> fu = ps!alterResource(instance_, rt, v);
@@ -1597,9 +1696,9 @@ class LatencyMonitor(Int upper, MonitorPlatformService ps) implements Monitor {
 
 [Deploy : scenario(Cons( Param( "ps", Req ), Cons( Param( "ls", Req ), Nil ) ))]
 class ServiceProviderImpl(PlatformService ps, LoadBalancerService ls) implements ServiceProvider {
-  Map<Customer, Map<Config, Int>> customers = EmptyMap;
+  Map<String, Map<Config, Int>> customers = EmptyMap;
   
-  EndPoint addCustomer(Config sc, Customer c){
+  EndPoint addCustomer(Config sc, String c){
     Fut<Int> tmp325183616 = ps!createService(sc, c);
     await tmp325183616?;
     Int id = tmp325183616.get;
@@ -1611,7 +1710,7 @@ class ServiceProviderImpl(PlatformService ps, LoadBalancerService ls) implements
     assert ( eps != Nothing );
     return fromJust(eps);
   }
-  Unit removeCustomer(Config sc, Customer c){
+  Unit removeCustomer(Config sc, String c){
     Map<Config, Int> map = lookupDefault(customers, c, EmptyMap);
     Maybe<Int> mid = lookup(map, sc);
     assert ( mid != Nothing );
@@ -1624,12 +1723,12 @@ class ServiceProviderImpl(PlatformService ps, LoadBalancerService ls) implements
 
 
 [Deploy : scenario(Cons( Name( "staging" ), Cons( Cost( "Cores", 2 ), Cons( Cost( "Memory", 700 ), Cons( Param( "c", Default( "\"Customer X\"" ) ), Cons( Param( "staging", Default( "True" ) ), Cons( Param( "da", Req ), Nil ) ) ) ) ) ))] [Deploy : scenario(Cons( Name( "live" ), Cons( Cost( "Cores", 1 ), Cons( Cost( "Memory", 300 ), Cons( Param( "c", Default( "\"Customer X\"" ) ), Cons( Param( "staging", Default( "False" ) ), Cons( Param( "da", Req ), Nil ) ) ) ) ) ))]
-class QueryServiceImpl(DeploymentAgent da, Customer c, Bool staging) implements IQueryService {
+class QueryServiceImpl(DeploymentAgent da, String c, Bool staging) implements IQueryService {
   Int reqCount = 0;
   State currentState = STOP;
-  Id serviceId = 0;
+  Int serviceId = 0;
   
-  Response invoke(Request request){
+  Bool invoke(Int request){
     assert ( currentState == RUNNING );
     Time t = now();
     println(( ( toString(t) + ": invoking query with cost " ) + toString(request) ));
@@ -1642,17 +1741,17 @@ class QueryServiceImpl(DeploymentAgent da, Customer c, Bool staging) implements 
   State getStatus(){
     return currentState;
   }
-  Id getServiceId(){
+  Int getServiceId(){
     return serviceId;
   }
-  Unit setServiceId(Id id){
+  Unit setServiceId(Int id){
     assert ( serviceId == 0 );
     serviceId = id;
   }
   ServiceType getServiceType(){
     return FAS;
   }
-  Customer getCustomer(){
+  String getCustomer(){
     return c;
   }
   Int getLatency(){
@@ -1695,7 +1794,7 @@ class MonitoringQueryEndpointImpl(List<EndPoint> allEndpoints, DegradationMonito
   List<EndPoint> current = allEndpoints;
   State state = RUNNING;
   
-  Response invoke(Request request){
+  Bool invoke(Int request){
     assert ( state != STOP );
     if ( ( current == Nil ) ){
       current = allEndpoints;
@@ -1712,13 +1811,13 @@ class MonitoringQueryEndpointImpl(List<EndPoint> allEndpoints, DegradationMonito
   State getStatus(){
     return state;
   }
-  Unit invokeWithDelay(Int proctime, Customer customer, Int amazonECU, Int delay) {
-    Request req = ( proctime * amazonECU );
+  Unit invokeWithDelay(Int proctime, String customer, Int amazonECU, Int delay) {
+    Int req = ( proctime * amazonECU );
     Time start = now();
     this.invoke(req);
     Time end = now();
-    Int newProcTime = truncate( timeValue(end) - timeValue(start) );
-    await monitor!notify_query_Mon(start, customer, newProcTime); //MADEASYNC
+    //Int newProcTime = truncate( timeValue(end) - timeValue(start) );
+    await monitor!notify_query_Mon(start, customer, timeValue(end) - timeValue(start)); //MADEASYNC
     
     //delay until next query
     //await duration(delay,delay); 
@@ -1771,7 +1870,7 @@ class AddQueryServicesDeployerImpl(CloudProvider cloudProvider, MonitorPlatformS
 // FRH MAIN
 ///////////
 {
-  CloudProvider cp = new local SimCloudProvider("CloudProvider"); //MADELOCAL
+  ISmartCloudProvider cp = new local SmartCloudProvider("CloudProvider"); //MADELOCAL
   cp.addSmartDeployInstances();
   SmartDeployInterface c1 = new local MainSmartDeployer(cp); //MADELOCAL
   c1.deploy();

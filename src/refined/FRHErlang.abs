@@ -10,9 +10,9 @@ interface ISmartCloudProvider extends CloudProvider {
 class SmartCloudProvider(String name) implements ISmartCloudProvider {
     CloudProvider wrapped;
     {
-      wrapped = new local SimCloudProvider(name);
+      wrapped = new local CloudProvider(name); // wrapped = new local SimCloudProvider(name);
     }
-     Unit shutdown() { 
+    [Atomic] Unit shutdown() { 
       return wrapped.shutdown();
     }
 
@@ -43,26 +43,26 @@ class SmartCloudProvider(String name) implements ISmartCloudProvider {
       return wrapped.shutdownInstance(instance_);
     }
 
-    Rat getAccumulatedCost() {
+    [Atomic] Rat getAccumulatedCost() {
       return wrapped.getAccumulatedCost();
     }
 
     // Sets up information for [pre]launchInstanceNamed()
-     Unit setInstanceDescriptions(Map<String, Map<Resourcetype, Rat>> instanceDescriptions) {
+    [Atomic] Unit setInstanceDescriptions(Map<String, Map<Resourcetype, Rat>> instanceDescriptions) {
       return wrapped.setInstanceDescriptions(instanceDescriptions);
     }
 
     // Adds an instance for [pre]launchInstanceNamed()
-     Unit addInstanceDescription(Pair<String, Map<Resourcetype, Rat>> instanceDescription) {
+    [Atomic] Unit addInstanceDescription(Pair<String, Map<Resourcetype, Rat>> instanceDescription) {
       return wrapped.addInstanceDescription(instanceDescription);
     }
 
     // Removes an instance for [pre]launchInstanceNamed() based on its name
-     Unit removeInstanceDescription(String instanceDescriptionName) {
+    [Atomic] Unit removeInstanceDescription(String instanceDescriptionName) {
       return wrapped.removeInstanceDescription(instanceDescriptionName);
     }
 
-     Map<String, Map<Resourcetype, Rat>> getInstanceDescriptions() {
+    [Atomic] Map<String, Map<Resourcetype, Rat>> getInstanceDescriptions() {
       return wrapped.getInstanceDescriptions();
     }
 
@@ -80,20 +80,6 @@ class SmartCloudProvider(String name) implements ISmartCloudProvider {
     this.addInstanceDescription(Pair( "c4_xlarge_us2", map(Cons( Pair( CostPerInterval, 209 ), Cons( Pair( Cores, 4 ), Cons( Pair( Memory, 750 ), Cons( Pair( Speed, 16 ), Nil ) ) ) )) ));
     this.addInstanceDescription(Pair( "m4_xlarge_us2", map(Cons( Pair( CostPerInterval, 239 ), Cons( Pair( Cores, 4 ), Cons( Pair( Memory, 1600 ), Cons( Pair( Speed, 13 ), Nil ) ) ) )) ));
     this.addInstanceDescription(Pair( "m4_xlarge_us1", map(Cons( Pair( CostPerInterval, 239 ), Cons( Pair( Cores, 4 ), Cons( Pair( Memory, 1600 ), Cons( Pair( Speed, 13 ), Nil ) ) ) )) ));
-    this.addInstanceDescription(Pair("m3_medium_us1",
-      map[Pair(CostPerInterval,67)
-      ,Pair(Cores,1)
-      ,Pair(Memory,375)
-      ,Pair(Speed,3)
-      //,Pair(Startupduration,7000)
-      ]));
-    this.addInstanceDescription(Pair("m3_medium_us2",
-      map[Pair(CostPerInterval,67)
-      ,Pair(Cores,1)
-      ,Pair(Memory,375)
-      ,Pair(Speed,3)
-      //,Pair(Startupduration,7000)
-      ]));
     this.addInstanceDescription(Pair("t2_small_us1",
             map[Pair(CostPerInterval,26)
             ,Pair(Cores,1)
@@ -665,7 +651,7 @@ class MainSmartDeployer(CloudProvider cloudProvider) implements SmartDeployInter
     ls_DeploymentComponent = Cons( m4_xlarge_eu_0, ls_DeploymentComponent );
     DeploymentComponent c4_2xlarge_us1_0 = cloudProvider.prelaunchInstanceNamed("c4_2xlarge_us1");
     ls_DeploymentComponent = Cons( c4_2xlarge_us1_0, ls_DeploymentComponent );
-    DeploymentComponent m4_large_us1_0 = cloudProvider.prelaunchInstanceNamed("m3_medium_us1");
+    DeploymentComponent m4_large_us1_0 = cloudProvider.prelaunchInstanceNamed("m4_large_us1");
     ls_DeploymentComponent = Cons( m4_large_us1_0, ls_DeploymentComponent );
     DeploymentComponent c4_xlarge_eu_0 = cloudProvider.prelaunchInstanceNamed("c4_xlarge_eu");
     ls_DeploymentComponent = Cons( c4_xlarge_eu_0, ls_DeploymentComponent );
@@ -673,7 +659,7 @@ class MainSmartDeployer(CloudProvider cloudProvider) implements SmartDeployInter
     ls_DeploymentComponent = Cons( c4_xlarge_us1_0, ls_DeploymentComponent );
     DeploymentComponent c4_xlarge_us2_0 = cloudProvider.prelaunchInstanceNamed("c4_xlarge_us2");
     ls_DeploymentComponent = Cons( c4_xlarge_us2_0, ls_DeploymentComponent );
-    DeploymentComponent m4_xlarge_us2_0 = cloudProvider.prelaunchInstanceNamed("m3_medium_us2");
+    DeploymentComponent m4_xlarge_us2_0 = cloudProvider.prelaunchInstanceNamed("m4_xlarge_us2");
     ls_DeploymentComponent = Cons( m4_xlarge_us2_0, ls_DeploymentComponent );
     [DC : c4_xlarge_us1_0]
     LoadBalancerEndPoint oDef___LoadBalancerEndPointImpl_0_c4_xlarge_us1_0 = new LoadBalancerEndPointImpl();
