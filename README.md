@@ -24,7 +24,7 @@ source ~/.bashrc
 sudo apt-get install unzip git python3 python3-pip -y
 pip3 install setuptools 
 pip3 install requests modgrammar
-git submodule update --init --recursive
+git submodule update --init
 # follow the Configuration instructions on metviz/README.md
 ```
 
@@ -63,6 +63,7 @@ habs/gen/haskell/FRH --unit-time=1,ms --port=8080
 ```bash
 sudo docker start grafana
 python3 metviz/metviz.py --ccf 10 http://localhost:8080/call/monitor/metricHistory
+# note when using the Erlang backend use http://localhost:8080/v1/call/...
 ```
 
 3. Populate the requests by replaying the logs
@@ -70,4 +71,5 @@ python3 metviz/metviz.py --ccf 10 http://localhost:8080/call/monitor/metricHisto
 ```bash
 # after (re)placing custom_filters.py and fredhopper.biz.log
 python3 logreplay/logreplay.py --extra_params customer=gamma,amazonECU=13 logreplay/fredhopper.biz.log proctime http://localhost:8080/call/queryService/invokeWithDelay
+# note when using the Erlang backend use http://localhost:8080/v1/call/...
 ```

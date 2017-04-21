@@ -1,7 +1,11 @@
 [submodule "habs"]
-	path = habs
-	url = https://github.com/abstools/habs
+  path = habs
+  url = https://github.com/abstools/habs
   branch = sim
+  fetchRecurseSubmodules = true
+[submodule "abstools"]
+  path = abstools
+  url = https://github.com/abstools/abstools
 [submodule "logreplay"]
   path = logreplay
   url = https://github.com/abstools/logreplay
