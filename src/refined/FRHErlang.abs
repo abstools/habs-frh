@@ -1820,7 +1820,7 @@ class MonitoringQueryEndpointImpl(List<EndPoint> allEndpoints, DegradationMonito
     await monitor!notify_query_Mon(start, customer, timeValue(end) - timeValue(start)); //MADEASYNC
     
     //delay until next query
-    //await duration(delay,delay); 
+    await duration(delay,delay); 
 
     //print new query metrics
     //print("old proctime: ");
