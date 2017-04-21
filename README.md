@@ -21,7 +21,7 @@ echo "PATH=$PATH:/opt/ghc/8.0.2/bin:/opt/cabal/1.24/bin:/opt/happy/1.19.5/bin" |
 source ~/.bashrc
 
 # other deps
-sudo apt-get install unzip git python3 python3-pip -y
+sudo apt-get install unzip git python3 python3-pip default-jdk ant erlang -y
 pip3 install setuptools 
 pip3 install requests modgrammar
 git submodule update --init
@@ -45,8 +45,9 @@ cabal install
 
 ```bash
 cd habs/
-cabal exec habs -- ../src/refined/FRH.abs  # or initial/
-cabal exec ghc -- --make -O gen/haskell/FRH.hs -main-is FRH 
+cabal exec habs -- ../src/refined/FRH.abs -o ../gen/haskell # or initial/
+cabal exec ghc -- --make -O ../gen/haskell/FRH.hs -main-is FRH 
+# absc -erlang ../src/refined/FRHErlang.abs  # if Erlang
 cd ..
 ```
 
@@ -55,7 +56,8 @@ cd ..
 1. Start the case study model
 
 ```bash
-habs/gen/haskell/FRH --unit-time=1,ms --port=8080
+gen/haskell/FRH --unit-time=1,ms -p 8080
+# gen/erl/run -p 8080 # if Erlang
 ```
 
 2. Start the monitoring
