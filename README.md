@@ -72,6 +72,6 @@ python3 metviz/metviz.py --ccf 10 http://localhost:8080/call/monitor/metricHisto
 
 ```bash
 # after (re)placing custom_filters.py and fredhopper.biz.log
-python3 logreplay/logreplay.py --extra_params customer=gamma,amazonECU=13,delay=0 logreplay/fredhopper.biz.log proctime http://localhost:8080/call/queryService/invokeWithDelay
+python3 logreplay/logreplay.py --extra_params customer=gamma,amazonECU=13 --pass_delay logreplay/fredhopper.biz.log proctime http://localhost:8080/call/queryService/invokeWithDelay
 # note when using the Erlang backend use http://localhost:8080/v1/call/...
 ```
