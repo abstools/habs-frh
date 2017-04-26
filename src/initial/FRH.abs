@@ -1661,8 +1661,7 @@ class MonitoringServiceImpl implements MonitoringService {
   ScaleStamp execute(Monitor m){
     Fut<ScaleStamp> f = m!monitor();
     await f?;
-    ScaleStamp res = f.get;
-    return(res);
+    return f.get;
   }
 }
 
