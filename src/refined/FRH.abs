@@ -122,8 +122,7 @@ data Scale = UP| DOWN;
 
 data ScaleStamp = ScaleStamp_(Time, String monitorName, ScaleAction);
 data ScaleAction = ScaleUp(DeployerIF d)
-                 | ScaleDown(DeployerIF d)
-                 | ScaleNot;
+                 | ScaleDown(DeployerIF d);
 
 
 data DeployParamSpecification = Req| List(Int)| Default(String)| User_| OptList(String);
@@ -373,7 +372,7 @@ def Map<X, Map<X, Y>> reset<X, Y>(Map<X, Map<X, Y>> map, X x) =
 ///////////////////////////////////////
 
 interface Monitor {
-  ScaleStamp monitor();
+  Maybe<ScaleStamp> monitor();
   [HTTPCallable] List<Pair<Time, List<Pair<String, Rat>>>> metricHistory();}
 
 interface DegradationMonitorIf extends Monitor {
@@ -383,12 +382,38 @@ interface DegradationMonitorIf extends Monitor {
 class DegradationMonitorImpl(DeployerIF deployer) implements DegradationMonitorIf {
   //[Visualize] 
   List<Pair<Time, List<Pair<String, Rat>>>> metricHist = Nil;
+  List<Pair<Time, List<Pair<String, Rat>>>> metricHistFull = Nil; 
   DegradationMetricIf metric;
   {
     metric = new local DegradationMetricImpl();
   }
   
-  ScaleStamp monitor(){
+  Maybe<ScaleStamp> monitor(){
+    Map<String, Rat> degradationSLA = map(Cons( Pair( "asos.fas.live.200ms", ( 5 / 1000 ) ), Cons( Pair( "asos.fas.live.500ms", ( 1 / 1000 ) ), Cons( Pair( "gamma.fas.live.200ms", ( 5 / 100 ) ), Cons( Pair( "gamma.fas.live.500ms", ( 1 / 100 ) ), Nil ) ) ) ));
+    Set<String> metricNames = keys(degradationSLA);
+    List<Pair<Time, List<Pair<String, Rat>>>> copyFull = metricHistFull;
+    List<Pair<String, Rat>> latestMeasurements = snd(head(copyFull));
+    Maybe<ScaleStamp> res = Nothing;
+    Bool allUnderUtilized = True;
+    while (latestMeasurements != Nil) {
+      Pair<String,Rat> latestMeasurement = head(latestMeasurements);
+      Rat targetValue = lookupUnsafe(degradationSLA, fst(latestMeasurement));
+      Rat latestValue = snd(latestMeasurement);
+      Rat difference = (latestValue/100 - targetValue) / targetValue;
+      if (difference > 1/10) {
+        Time t = now();
+        res = Just(ScaleStamp_(t, "DegradationMonitor", ScaleUp(deployer)));
+        latestMeasurements = Nil; // break
+        allUnderUtilized = False;
+      }
+      else if (difference > -5/10){
+        allUnderUtilized = False;
+      }
+    }
+    if (allUnderUtilized) {
+      Time t = now();
+      res = Just(ScaleStamp_(t, "DegradationMonitor", ScaleDown(deployer)));
+    }
     //corrective actions to improve metric
      //deployer.scaleUp();
      //println("monitor: " + toString(now()));
@@ -403,8 +428,8 @@ class DegradationMonitorImpl(DeployerIF deployer) implements DegradationMonitorI
           } else if(slow200pct < 3 && slow500pct < 3/10) {
             deployer.scaleDown();
           }*/
-    Time t = now();
-    return(ScaleStamp_(t,"DegradationMonitorImpl",ScaleNot));  
+    return res;
+    //return(ScaleStamp_(t,"DegradationMonitorImpl",ScaleNot));  
   }
   List<Pair<Time, List<Pair<String, Rat>>>> metricHistory(){
     List<Pair<Time, List<Pair<String, Rat>>>> copy = metricHist;
@@ -414,6 +439,7 @@ class DegradationMonitorImpl(DeployerIF deployer) implements DegradationMonitorI
   Unit notify_query_Mon(Time t, String customer, Rat procTime){
     List<Pair<String, Rat>> measurement = metric.notify_query_Met(t, customer, procTime);
     metricHist = Cons( Pair( t, measurement ), metricHist );
+    metricHistFull = Cons( Pair( t, measurement ), metricHistFull );
   }
   }
 
@@ -1621,18 +1647,21 @@ class MonitoringServiceImpl implements MonitoringService {
       monitorMap = decr(monitorMap);
       List<Monitor> toBeRun = lookupAllSecond(monitorMap, 0);
       monitorMap = reset(monitorMap, 0);
-      List<Fut<ScaleStamp>> futs = Nil;
+      List<Fut<Maybe<ScaleStamp>>> futs = Nil;
       while (( toBeRun != Nil )) {
         Monitor mon = head(toBeRun);
-        Fut<ScaleStamp> f = this!execute(mon);
+        Fut<Maybe<ScaleStamp>> f = this!execute(mon);
         futs = Cons( f, futs );
         toBeRun = tail(toBeRun);
       }
       while (( futs != Nil )) {
-        Fut<ScaleStamp> f = head(futs);
+        Fut<Maybe<ScaleStamp>> f = head(futs);
         await f?;
-        ScaleStamp res = f.get;
-        this.history = Cons(res,this.history);
+        Maybe<ScaleStamp> res = f.get;
+        this.history = case res {
+                          Just(res_) => Cons(res_,this.history);
+                          _ => this.history;
+                       };
         futs = tail(futs);
       }
     }
@@ -1646,8 +1675,8 @@ class MonitoringServiceImpl implements MonitoringService {
     }
     return(stringHistory);
   }
-  ScaleStamp execute(Monitor m){
-    Fut<ScaleStamp> f = m!monitor();
+  Maybe<ScaleStamp> execute(Monitor m){
+    Fut<Maybe<ScaleStamp>> f = m!monitor();
     await f?;
     return f.get;
   }
@@ -1683,7 +1712,7 @@ class LatencyMonitor(Int upper, MonitorPlatformService ps) implements Monitor {
     }
     return scaling_;
   }
-  ScaleStamp monitor(){
+  Maybe<ScaleStamp> monitor(){
     log = ( log + 1 );
     List<Triple<Int, Resourcetype, Rat>> scaling_ = Nil;
     Fut<List<Int>> ef = ps!getEndPoints();
@@ -1708,8 +1737,9 @@ class LatencyMonitor(Int upper, MonitorPlatformService ps) implements Monitor {
       fu.get;
       scaling_ = tail(scaling_);
     }
-    Time t = now();
-    return(ScaleStamp_(t,"LatencyMonitor", ScaleNot)); // STUB
+    return Nothing;
+    //Time t = now();
+    //return(ScaleStamp_(t,"LatencyMonitor", ScaleNot)); // STUB
   }
   List<Pair<Time, List<Pair<String, Rat>>>> metricHistory(){
     return Nil;
