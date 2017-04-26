@@ -1932,7 +1932,7 @@ class AddQueryServicesDeployerImpl(CloudProvider cloudProvider, MonitorPlatformS
   DeployerIF deployerif = new AddQueryServicesDeployerImpl(cp, head(monitorPlatformServicesEu), head(monitorPlatformServicesUs), head(deploymentServicesUs), head(deploymentServicesEu), head(loadBalancerEndPointsEu), head(loadBalancerEndPointsUs), head(tail(loadBalancerEndPointsUs)));
   [HTTPName: "monitoringService"] MonitoringService ms = new MonitoringServiceImpl();
   [HTTPName : "monitor"] DegradationMonitorIf degradationMonitor = new DegradationMonitorImpl(deployerif);
-  Fut<Unit> df = ms!addMS(Rule_( 500, degradationMonitor ));
+  Fut<Unit> df = ms!addMS(Rule_( 5000, degradationMonitor ));
   df.get;
   [HTTPName : "queryService"] MonitoringQueryEndpoint mqep = new MonitoringQueryEndpointImpl(loadBalancerEndPoints, degradationMonitor);
   println("Endpoints set up. Waiting for requests...");

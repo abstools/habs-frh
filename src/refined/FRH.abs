@@ -120,6 +120,12 @@ data Rule = Rule_(Int interval, Monitor monitor_);
 data Scale = UP| DOWN;
 //type CustomerConfig = Pair<String, List<Pair<Config, Int>>>;  // DEAD CODE
 
+data ScaleStamp = ScaleStamp_(Time, String monitorName, ScaleAction);
+data ScaleAction = ScaleUp(DeployerIF d)
+                 | ScaleDown(DeployerIF d)
+                 | ScaleNot;
+
+
 data DeployParamSpecification = Req| List(Int)| Default(String)| User_| OptList(String);
 data DeployScenarioElement = MaxUse(Int)| Cost(String, Int)| Param(String, DeployParamSpecification)| Name(String);
 type Deploy = List<DeployScenarioElement>;
@@ -367,7 +373,7 @@ def Map<X, Map<X, Y>> reset<X, Y>(Map<X, Map<X, Y>> map, X x) =
 ///////////////////////////////////////
 
 interface Monitor {
-  Unit monitor();
+  ScaleStamp monitor();
   [HTTPCallable] List<Pair<Time, List<Pair<String, Rat>>>> metricHistory();}
 
 interface DegradationMonitorIf extends Monitor {
@@ -382,7 +388,7 @@ class DegradationMonitorImpl(DeployerIF deployer) implements DegradationMonitorI
     metric = new local DegradationMetricImpl();
   }
   
-  Unit monitor(){
+  ScaleStamp monitor(){
     //corrective actions to improve metric
      //deployer.scaleUp();
      //println("monitor: " + toString(now()));
@@ -397,7 +403,8 @@ class DegradationMonitorImpl(DeployerIF deployer) implements DegradationMonitorI
           } else if(slow200pct < 3 && slow500pct < 3/10) {
             deployer.scaleDown();
           }*/
-     
+    Time t = now();
+    return(ScaleStamp_(t,"DegradationMonitorImpl",ScaleNot));  
   }
   List<Pair<Time, List<Pair<String, Rat>>>> metricHistory(){
     List<Pair<Time, List<Pair<String, Rat>>>> copy = metricHist;
@@ -857,6 +864,7 @@ interface MonitorPlatformService extends PlatformService {
 interface MonitoringService {
   Unit addMS(Rule rule);
   Unit removeMS(Rule rule);
+  [HTTPCallable] List<String> getHistory();
 }
 
 interface ServiceProvider {
@@ -1578,6 +1586,7 @@ class PlatformServiceImpl(DeploymentService ds, LoadBalancerService ls) implemen
 
 class MonitoringServiceImpl implements MonitoringService {
   Int log = 0;
+  List<ScaleStamp> history = Nil;
   Map<Int, Map<Int, List<Monitor>>> monitorMap = EmptyMap;
   
   Unit addMS(Rule rule){
@@ -1605,34 +1614,45 @@ class MonitoringServiceImpl implements MonitoringService {
       }
     }
   }
-  Unit run(){
+ Unit run(){
     while (True) {
       await duration(1, 1);
       log = ( log + 1 );
       monitorMap = decr(monitorMap);
       List<Monitor> toBeRun = lookupAllSecond(monitorMap, 0);
       monitorMap = reset(monitorMap, 0);
-      List<Fut<Unit>> futs = Nil;
+      List<Fut<ScaleStamp>> futs = Nil;
       while (( toBeRun != Nil )) {
         Monitor mon = head(toBeRun);
-        Fut<Unit> f = this!execute(mon);
+        Fut<ScaleStamp> f = this!execute(mon);
         futs = Cons( f, futs );
         toBeRun = tail(toBeRun);
       }
       while (( futs != Nil )) {
-        Fut<Unit> f = head(futs);
+        Fut<ScaleStamp> f = head(futs);
         await f?;
-        f.get;
+        ScaleStamp res = f.get;
+        this.history = Cons(res,this.history);
         futs = tail(futs);
       }
     }
   }
-  Unit execute(Monitor m){
-    Fut<Unit> f = m!monitor();
+  List<String> getHistory() {
+    List<ScaleStamp> tempHistory = this.history; // this.history is not flushed
+    List<String> stringHistory = Nil;
+    while (tempHistory != Nil) {
+      stringHistory = Cons(toString(head(tempHistory)),stringHistory);
+      tempHistory = tail(tempHistory);
+    }
+    return(stringHistory);
+  }
+  ScaleStamp execute(Monitor m){
+    Fut<ScaleStamp> f = m!monitor();
     await f?;
-    f.get;
+    return f.get;
   }
 }
+
 
 class LatencyMonitor(Int upper, MonitorPlatformService ps) implements Monitor {
   Int log = 0;
@@ -1663,7 +1683,7 @@ class LatencyMonitor(Int upper, MonitorPlatformService ps) implements Monitor {
     }
     return scaling_;
   }
-  Unit monitor(){
+  ScaleStamp monitor(){
     log = ( log + 1 );
     List<Triple<Int, Resourcetype, Rat>> scaling_ = Nil;
     Fut<List<Int>> ef = ps!getEndPoints();
@@ -1688,6 +1708,8 @@ class LatencyMonitor(Int upper, MonitorPlatformService ps) implements Monitor {
       fu.get;
       scaling_ = tail(scaling_);
     }
+    Time t = now();
+    return(ScaleStamp_(t,"LatencyMonitor", ScaleNot)); // STUB
   }
   List<Pair<Time, List<Pair<String, Rat>>>> metricHistory(){
     return Nil;
@@ -1899,7 +1921,7 @@ class AddQueryServicesDeployerImpl(CloudProvider cloudProvider, MonitorPlatformS
   DeployerIF deployerif = new AddQueryServicesDeployerImpl(cp, head(monitorPlatformServicesEu), head(monitorPlatformServicesUs), head(deploymentServicesUs), head(deploymentServicesEu), head(loadBalancerEndPointsEu), head(loadBalancerEndPointsUs), head(tail(loadBalancerEndPointsUs)));
   MonitoringService ms = new MonitoringServiceImpl();
   [HTTPName : "monitor"] DegradationMonitorIf degradationMonitor = new DegradationMonitorImpl(deployerif);
-  Fut<Unit> df = ms!addMS(Rule_( 500, degradationMonitor ));
+  Fut<Unit> df = ms!addMS(Rule_( 5000, degradationMonitor ));
   df.get;
   [HTTPName : "queryService"] MonitoringQueryEndpoint mqep = new MonitoringQueryEndpointImpl(loadBalancerEndPoints, degradationMonitor);
   println("Endpoints set up. Waiting for requests...");
