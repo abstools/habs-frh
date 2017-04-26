@@ -1919,7 +1919,7 @@ class AddQueryServicesDeployerImpl(CloudProvider cloudProvider, MonitorPlatformS
   List<LoadBalancerEndPoint> loadBalancerEndPointsUs = filter_lists_by_substr(loadBalancerEndPoints, string_list, "_us");
   List<LoadBalancerEndPoint> loadBalancerEndPointsEu = filter_lists_by_substr(loadBalancerEndPoints, string_list, "_eu");
   DeployerIF deployerif = new AddQueryServicesDeployerImpl(cp, head(monitorPlatformServicesEu), head(monitorPlatformServicesUs), head(deploymentServicesUs), head(deploymentServicesEu), head(loadBalancerEndPointsEu), head(loadBalancerEndPointsUs), head(tail(loadBalancerEndPointsUs)));
-  MonitoringService ms = new MonitoringServiceImpl();
+  [HTTPName: "monitoringService"] MonitoringService ms = new MonitoringServiceImpl();
   [HTTPName : "monitor"] DegradationMonitorIf degradationMonitor = new DegradationMonitorImpl(deployerif);
   Fut<Unit> df = ms!addMS(Rule_( 5000, degradationMonitor ));
   df.get;
