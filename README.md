@@ -24,10 +24,11 @@ source ~/.bashrc
 sudo apt-get install unzip git python3 python3-pip default-jdk ant erlang -y
 pip3 install setuptools 
 pip3 install requests modgrammar
-git submodule update --init
+git submodule update --init --recursive
 # follow the Configuration instructions on metviz/README.md
 ```
 
+# Installing the haskell-abs compiler
 
 ```bash
 cd habs/
@@ -38,6 +39,17 @@ cabal sandbox add-source habs-runtime
 
 cabal update
 cabal install habs-runtime -fwait-all-cogs
+cabal install
+```
+
+# Updating the haskell-abs compiler
+
+```bash
+git submodule update --recursive
+
+cd habs/
+cabal update
+cabal install habs-runtime -fwait-all-cogs --reinstall
 cabal install
 ```
 
@@ -72,6 +84,6 @@ python3 metviz/metviz.py --ccf 10 http://localhost:8080/call/monitor/metricHisto
 
 ```bash
 # after (re)placing custom_filters.py and fredhopper.biz.log
-python3 logreplay/logreplay.py --extra_params customer=gamma,amazonECU=13 --pass_delay logreplay/fredhopper.biz.log proctime http://localhost:8080/call/queryService/invokeWithDelay
+python3 logreplay/logreplay.py --extra_params customer=gamma,amazonECU=13 --pass_delay --use_delay logreplay/fredhopper.biz.log proctime http://localhost:8080/call/queryService/invokeWithDelay
 # note when using the Erlang backend use http://localhost:8080/v1/call/...
 ```
