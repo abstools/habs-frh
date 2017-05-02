@@ -120,9 +120,9 @@ data Rule = Rule_(Int interval, Monitor monitor_);
 data Scale = UP| DOWN;
 //type CustomerConfig = Pair<String, List<Pair<Config, Int>>>;  // DEAD CODE
 
-data ScaleStamp = ScaleStamp_(Time, String monitorName, ScaleAction);
-data ScaleAction = ScaleUp(DeployerIF d)
-                 | ScaleDown(DeployerIF d);
+data ScaleStamp = ScaleStamp_(Time, String monitorName, ScaleAction action);
+data ScaleAction = ScaleUp(DeployerIF depl)
+                 | ScaleDown(DeployerIF depl);
 
 
 data DeployParamSpecification = Req| List(Int)| Default(String)| User_| OptList(String);
@@ -211,6 +211,11 @@ def List<X> toList<X>(Set<X> s) =
   case s {
     EmptySet => Nil;
     Insert( x, xs ) => Cons( x, toList(xs) );
+  };
+def A nth<A>(List<A> list, Int n) = 
+  case n { 
+    0 => head(list) ; 
+    _ => nth(tail(list), n-1); 
   };
 
 def Maybe<Pair<Config, Int>> lookupService(Map<Config, Int> cs, ServiceType s) = 
@@ -891,6 +896,7 @@ interface MonitoringService {
   Unit addMS(Rule rule);
   Unit removeMS(Rule rule);
   [HTTPCallable] List<String> getHistory();
+  [HTTPCallable] Unit executeScaleAction(Int index);
 }
 
 interface ServiceProvider {
@@ -1680,6 +1686,20 @@ class MonitoringServiceImpl implements MonitoringService {
     await f?;
     return f.get;
   }
+  
+  Unit executeScaleAction(Int index) {
+    Maybe<ScaleStamp> mss = nth(history, index);
+    case mss {
+        Just(ss) => {
+            ScaleAction a = action(ss);
+            case a {
+                ScaleUp(d)   => { /*Fut<Unit> f = d!scaleUp(); f.get; */ }
+                ScaleDown(d) => { /*Fut<Unit> f = d!scaleDown(); f.get; */ }
+            }
+        }
+        _ => { }
+    }
+  }  
 }
 
 
