@@ -212,11 +212,6 @@ def List<X> toList<X>(Set<X> s) =
     EmptySet => Nil;
     Insert( x, xs ) => Cons( x, toList(xs) );
   };
-def A nth<A>(List<A> list, Int n) = 
-  case n { 
-    0 => head(list) ; 
-    _ => nth(tail(list), n-1); 
-  };
 
 def Maybe<Pair<Config, Int>> lookupService(Map<Config, Int> cs, ServiceType s) = 
   case cs {
@@ -1688,16 +1683,11 @@ class MonitoringServiceImpl implements MonitoringService {
   }
   
   Unit executeScaleAction(Int index) {
-    Maybe<ScaleStamp> mss = nth(history, index);
-    case mss {
-        Just(ss) => {
-            ScaleAction a = action(ss);
-            case a {
-                ScaleUp(d)   => { /*Fut<Unit> f = d!scaleUp(); f.get; */ }
-                ScaleDown(d) => { /*Fut<Unit> f = d!scaleDown(); f.get; */ }
-            }
-        }
-        _ => { }
+    ScaleStamp ss = nth(history, index);
+    ScaleAction a = action(ss);
+    case a {
+        ScaleUp(d)   => { /*Fut<Unit> f = d!scaleUp(); f.get; */ }
+        ScaleDown(d) => { /*Fut<Unit> f = d!scaleDown(); f.get; */ }
     }
   }  
 }
