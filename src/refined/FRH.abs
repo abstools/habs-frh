@@ -1660,7 +1660,7 @@ class MonitoringServiceImpl implements MonitoringService {
         await f?;
         Maybe<ScaleStamp> res = f.get;
         this.history = case res {
-                          Just(res_) => Cons(res_,this.history);
+                          Just(res_) => appendright(this.history,res_);
                           _ => this.history;
                        };
         futs = tail(futs);
@@ -1685,9 +1685,12 @@ class MonitoringServiceImpl implements MonitoringService {
   Unit executeScaleAction(Int index) {
     ScaleStamp ss = nth(history, index);
     ScaleAction a = action(ss);
+    DeployerIF d = case a { ScaleUp(d_) => d_;
+                            ScaleDown(d_) => d_;
+                          };
     case a {
-        ScaleUp(d)   => { /*Fut<Unit> f = d!scaleUp(); f.get; */ }
-        ScaleDown(d) => { /*Fut<Unit> f = d!scaleDown(); f.get; */ }
+        ScaleUp(_)   => { Fut<Unit> f = d!scaleUp(); f.get; }
+        ScaleDown(_) => { Fut<Unit> f = d!scaleDown(); f.get; }
     }
   }  
 }
