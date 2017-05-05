@@ -392,7 +392,9 @@ class DegradationMonitorImpl(DeployerIF deployer) implements DegradationMonitorI
     Map<String, Rat> degradationSLA = map(Cons( Pair( "asos.fas.live.200ms", ( 5 / 1000 ) ), Cons( Pair( "asos.fas.live.500ms", ( 1 / 1000 ) ), Cons( Pair( "gamma.fas.live.200ms", ( 5 / 100 ) ), Cons( Pair( "gamma.fas.live.500ms", ( 1 / 100 ) ), Nil ) ) ) ));
     Set<String> metricNames = keys(degradationSLA);
     List<Pair<Time, List<Pair<String, Rat>>>> copyFull = metricHistFull;
-    List<Pair<String, Rat>> latestMeasurements = snd(head(copyFull));
+    List<Pair<String, Rat>> latestMeasurements = if (isEmpty(copyFull))
+                                                 then Nil
+                                                 else snd(head(copyFull));
     Maybe<ScaleStamp> res = Nothing;
     Bool allUnderUtilized = True;
     while (latestMeasurements != Nil) {
@@ -1674,7 +1676,7 @@ class MonitoringServiceImpl implements MonitoringService {
       stringHistory = Cons(toString(head(tempHistory)),stringHistory);
       tempHistory = tail(tempHistory);
     }
-    return(stringHistory);
+    return reverse(stringHistory);
   }
   Maybe<ScaleStamp> execute(Monitor m){
     Fut<Maybe<ScaleStamp>> f = m!monitor();
