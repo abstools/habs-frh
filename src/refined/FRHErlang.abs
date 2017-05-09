@@ -1956,7 +1956,7 @@ class MonitoringQueryEndpointImpl(List<EndPoint> allEndpoints, DegradationMonito
     monitor.notify_query_Mon(start, customer, newProcTime);
     
     //delay until next query
-    //await duration(delay,delay); 
+    await duration(delay,delay); 
 
     //print new query metrics
     //print("old proctime: ");
