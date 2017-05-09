@@ -613,20 +613,57 @@ class AddQueryDeployer(CloudProvider cloudProvider, MonitorPlatformService platf
     deploymentServiceObjUs.addDS(oDef___DeploymentAgentImpl_0_m4_large_us1_0);
   }
   Unit undeploy(){
-    ls_EndPoint = Nil;
-    ls_IQueryService = Nil;
-    ls_Service = Nil;
-    ls_ServiceProvider = Nil;
-    ls_DeploymentAgent = Nil;
-    ls_LoadBalancerService = Nil;
-    ls_LoadBalancerEndPoint = Nil;
-    ls_DeploymentService = Nil;
-    ls_PlatformService = Nil;
-    ls_MonitorPlatformService = Nil;
-    while (! isEmpty(ls_DeploymentComponent)) {
-      cloudProvider.shutdownInstance(head(ls_DeploymentComponent));
-      ls_DeploymentComponent = tail(ls_DeploymentComponent);
-    }
+    DeploymentAgent oDef___DeploymentAgentImpl_0_m4_large_us1_0 = fst(head(ls_DeploymentAgent));
+    ls_DeploymentAgent = tail(ls_DeploymentAgent);
+    DeploymentAgent oDef___DeploymentAgentImpl_0_m4_large_us2_0 = fst(head(ls_DeploymentAgent));
+    ls_DeploymentAgent = tail(ls_DeploymentAgent);
+    IQueryService olive___QueryServiceImpl_0_m4_large_us2_0 = fst(head(ls_IQueryService));
+    ls_IQueryService = tail(ls_IQueryService);
+    IQueryService olive___QueryServiceImpl_0_m4_large_us1_0 = fst(head(ls_IQueryService));
+    ls_IQueryService = tail(ls_IQueryService);
+    ls_Service = tail(tail(ls_Service));
+    ls_EndPoint = tail(tail(ls_EndPoint));
+
+    DeploymentComponent m4_large_us1_0 = head(ls_DeploymentComponent);
+    ls_DeploymentComponent = tail(ls_DeploymentComponent);
+    DeploymentComponent m4_large_us2_0 = head(ls_DeploymentComponent);
+    ls_DeploymentComponent = tail(ls_DeploymentComponent);
+    
+    deploymentServiceObjUs.removeDS(oDef___DeploymentAgentImpl_0_m4_large_us2_0);
+    deploymentServiceObjUs.removeDS(oDef___DeploymentAgentImpl_0_m4_large_us1_0);
+
+
+    oDef___DeploymentAgentImpl_0_m4_large_us2_0.uninstallDA();
+    oDef___DeploymentAgentImpl_0_m4_large_us1_0.uninstallDA();
+
+
+    platformServiceObjUs.removeServiceInstance(olive___QueryServiceImpl_0_m4_large_us2_0);
+    platformServiceObjUs.removeServiceInstance(olive___QueryServiceImpl_0_m4_large_us1_0);
+
+    loadBalancerEndPointObjUs1.removeLBE(olive___QueryServiceImpl_0_m4_large_us2_0);
+    loadBalancerEndPointObjUs1.removeLBE(olive___QueryServiceImpl_0_m4_large_us1_0);
+    loadBalancerEndPointObjUs2.removeLBE(olive___QueryServiceImpl_0_m4_large_us2_0);
+    loadBalancerEndPointObjUs2.removeLBE(olive___QueryServiceImpl_0_m4_large_us1_0);
+
+
+    cloudProvider.shutdownInstance(m4_large_us1_0);
+    cloudProvider.shutdownInstance(m4_large_us2_0);
+
+
+    // ls_EndPoint = Nil;
+    // ls_IQueryService = Nil;
+    // ls_Service = Nil;
+    // ls_ServiceProvider = Nil;
+    // ls_DeploymentAgent = Nil;
+    // ls_LoadBalancerService = Nil;
+    // ls_LoadBalancerEndPoint = Nil;
+    // ls_DeploymentService = Nil;
+    // ls_PlatformService = Nil;
+    // ls_MonitorPlatformService = Nil;
+    // while (! isEmpty(ls_DeploymentComponent)) {
+    //   cloudProvider.shutdownInstance(head(ls_DeploymentComponent));
+    //   ls_DeploymentComponent = tail(ls_DeploymentComponent);
+    // }
   }
   }
 
@@ -782,6 +819,7 @@ class MainSmartDeployer(CloudProvider cloudProvider) implements SmartDeployInter
     oDef___DeploymentServiceImpl_0_c4_2xlarge_us1_0.addDS(oDef___DeploymentAgentImpl_0_m4_xlarge_us2_0);
   }
   Unit undeploy(){
+    // no need to implement the undeploy for the MainDeployer
     ls_EndPoint = Nil;
     ls_IQueryService = Nil;
     ls_Service = Nil;
@@ -843,6 +881,7 @@ interface DeploymentService {
   Unit startDS(Int serviceId);
   Unit stopDS(Int serviceId);
   Unit addDS(DeploymentAgent agent);
+  Unit removeDS(DeploymentAgent agent);
 }
 
 interface DeploymentAgent {
@@ -881,6 +920,7 @@ interface MonitorPlatformService extends PlatformService {
   Int addEndPoint(LoadBalancerEndPoint lb);
   Int removeEndPoint(LoadBalancerEndPoint lb);
   Int addServiceInstance(Service s);
+  Int removeServiceInstance(Service s);
 }
 
 // interface User {
@@ -1174,6 +1214,18 @@ class DeploymentServiceImpl implements DeploymentService {
     services = InsertAssoc( Pair( serviceId, s ), services );
     this.startDS(serviceId);
   }
+  Unit removeDS(DeploymentAgent agent){
+    Fut<Service> tmp908802124 = agent!getServiceDA();
+    await tmp908802124?;
+    Service s = tmp908802124.get;
+    Fut<Int> tmp433699465 = s!getServiceId();
+    await tmp433699465?;
+    Int serviceId = tmp433699465.get;
+    assert ( serviceId != 0 );
+    allocations = removeKey(allocations,s);
+    services = removeKey(services,serviceId);
+    this.stopDS(serviceId);
+  }
 }
 
 
@@ -1384,6 +1436,21 @@ class PlatformServiceImpl(DeploymentService ds, LoadBalancerService ls) implemen
           endPoints = InsertAssoc( Pair( endPointId, Cons( id, l ) ), endPoints );
         }
       }
+      endPointsToProcess = tail(endPointsToProcess);
+    }
+    return serviceId;
+  }
+  Int removeServiceInstance(Service s){
+    Int id = await s!getServiceId();
+    services = removeKey(services, id);
+    Fut<List<Int>> tmp268620232 = ls!getEndPointIdsByService(s);
+    await tmp268620232?;
+    List<Int> onEndPoints = tmp268620232.get;
+    List<Int> endPointsToProcess = onEndPoints;
+    while (( endPointsToProcess != Nil )) {
+      Int endPointId = head(endPointsToProcess);
+      serviceToEndPoints = removeKey(serviceToEndPoints,id);
+      removeKey(endPoints,endPointId);
       endPointsToProcess = tail(endPointsToProcess);
     }
     return serviceId;
