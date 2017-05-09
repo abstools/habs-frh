@@ -121,8 +121,8 @@ data Scale = UP| DOWN;
 //type CustomerConfig = Pair<String, List<Pair<Config, Int>>>;  // DEAD CODE
 
 data ScaleStamp = ScaleStamp_(Time, String monitorName, ScaleAction action);
-data ScaleAction = ScaleUp(DeployerIF depl)
-                 | ScaleDown(DeployerIF depl);
+data ScaleAction = ScaleUp(DeployerIF)
+                 | ScaleDown(DeployerIF);
 
 
 data DeployParamSpecification = Req| List(Int)| Default(String)| User_| OptList(String);
