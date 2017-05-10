@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<script>
+var options = [
+        set0 = ['Option 1','Option 2'],
+        set1 = ['First Option','Second Option','Third Option']
+    ];
+
+function executeRecomm(index) {
+  return function(){
+    var x = new XMLHttpRequest();
+    x.open("GET", "http://localhost:8080/call/monitoringService/executeScaleAction?index="+index.toString(), true);
+    x.send();};
+}
+
+function loadRecomms() {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+    var list = document.createElement('ul');
+
+    arr = JSON.parse(this.responseText);
+
+    for(var i = arr.length; i>0 ; i--) {
+      var item = document.createElement('li');
+      item.appendChild(document.createTextNode(arr[i-1]));
+      // Button
+      var btn = document.createElement("button");
+      btn.appendChild(document.createTextNode("Apply")); //scale up or down
+      btn.onclick = executeRecomm(i-1);
+      item.appendChild(btn);
+      list.appendChild(item);
+    }
+    document.getElementById('recomms').innerHTML = ""; // clear
+    document.getElementById('recomms').appendChild(list);
+    }
+  };
+  xhttp.open("GET", "http://localhost:8080/call/monitoringService/getHistory", true);
+  xhttp.send();
+}
+  
+setInterval(loadRecomms, 5000);
+</script>
+
+
+<iframe width="1000" height="420" src="http://localhost:3003/dashboard/db/metric-viz?from=now%2Fd&to=now%2Fd">
+  <p>Your browser does not support iframes.</p>
+</iframe>
+
+
+<div id="recomms">
+Recommendations will start appear here in a list automatically refreshed every 5s.
+</div>
+
+</body>
+</html>
