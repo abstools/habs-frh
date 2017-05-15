@@ -384,55 +384,48 @@ class DegradationMonitorImpl(DeployerIF deployer) implements DegradationMonitorI
   List<Pair<Time, List<Pair<String, Rat>>>> metricHist = Nil;
   List<Pair<Time, List<Pair<String, Rat>>>> metricHistFull = Nil; 
   DegradationMetricIf metric;
+  Bool firstScale = True;
   {
     metric = new local DegradationMetricImpl();
   }
   
   Maybe<ScaleStamp> monitor(){
     Map<String, Rat> degradationSLA = map(Cons( Pair( "asos.fas.live.200ms", ( 5 / 1000 ) ), Cons( Pair( "asos.fas.live.500ms", ( 1 / 1000 ) ), Cons( Pair( "gamma.fas.live.200ms", ( 5 / 100 ) ), Cons( Pair( "gamma.fas.live.500ms", ( 1 / 100 ) ), Nil ) ) ) ));
-    //Set<String> metricNames = keys(degradationSLA);
-    List<Pair<Time, List<Pair<String, Rat>>>> copyFull = metricHistFull;
-    List<Pair<String, Rat>> latestMeasurements = if (isEmpty(copyFull))
-                                                 then Nil
-                                                 else snd(head(copyFull));
     Maybe<ScaleStamp> res = Nothing;
-    Bool allUnderUtilized = True;
-    while (latestMeasurements != Nil) {
-      Pair<String,Rat> latestMeasurement = head(latestMeasurements);
-      latestMeasurements = tail(latestMeasurements);
-      Rat targetValue = lookupUnsafe(degradationSLA, fst(latestMeasurement));
-      Rat latestValue = snd(latestMeasurement);
-      Rat difference = (latestValue/100 - targetValue) / targetValue;
-      if (difference > 1/10) {
-        Time t = now();
-        res = Just(ScaleStamp_(t, "DegradationMonitor", ScaleUp(deployer)));
-        latestMeasurements = Nil; // break
-        allUnderUtilized = False;
-      }
-      else if (difference > -5/10){
-        allUnderUtilized = False;
-      }
-    }
-    if (allUnderUtilized) {
+    if (firstScale) {
+      firstScale = False;
       Time t = now();
-      res = Just(ScaleStamp_(t, "DegradationMonitor", ScaleDown(deployer)));
+      res = Just(ScaleStamp_(t, "DegradationMonitor", ScaleUp(deployer)));
     }
-    //corrective actions to improve metric
-     //deployer.scaleUp();
-     //println("monitor: " + toString(now()));
-    
-          //TODO
-          /*List<Pair<String, Rat>> currMetrics = snd(head(metricHist));
-          Rat slow200pct = snd(head(currMetrics));
-          Rat slow500pct = snd(head(tail(currMetrics)));
-     
-          if(slow200pct > 5 || slow500pct > 1) {
-            deployer.scaleUp();
-          } else if(slow200pct < 3 && slow500pct < 3/10) {
-            deployer.scaleDown();
-          }*/
+    else {
+      //Set<String> metricNames = keys(degradationSLA);
+      List<Pair<Time, List<Pair<String, Rat>>>> copyFull = metricHistFull;
+      List<Pair<String, Rat>> latestMeasurements = if (isEmpty(copyFull))
+                                                   then Nil
+                                                   else snd(head(copyFull));
+      Bool allUnderUtilized = True;
+      while (latestMeasurements != Nil) {
+        Pair<String,Rat> latestMeasurement = head(latestMeasurements);
+        latestMeasurements = tail(latestMeasurements);
+        Rat targetValue = lookupUnsafe(degradationSLA, fst(latestMeasurement));
+        Rat latestValue = snd(latestMeasurement);
+        Rat difference = (latestValue/100 - targetValue) / targetValue;
+        if (difference > 1/10) {
+          Time t = now();
+          res = Just(ScaleStamp_(t, "DegradationMonitor", ScaleUp(deployer)));
+          latestMeasurements = Nil; // break
+          allUnderUtilized = False;
+        }
+        else if (difference > -5/10){
+          allUnderUtilized = False;
+        }
+      }
+      if (allUnderUtilized) {
+        Time t = now();
+        res = Just(ScaleStamp_(t, "DegradationMonitor", ScaleDown(deployer)));
+      }
+    }
     return res;
-    //return(ScaleStamp_(t,"DegradationMonitorImpl",ScaleNot));  
   }
   List<Pair<Time, List<Pair<String, Rat>>>> metricHistory(){
     List<Pair<Time, List<Pair<String, Rat>>>> copy = metricHist;
