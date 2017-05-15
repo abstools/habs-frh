@@ -1987,19 +1987,15 @@ class UtilityFunctionsImpl implements UtilityFunctions {
 
 
 class AddQueryServicesDeployerImpl(CloudProvider cloudProvider, MonitorPlatformService platformServiceObjEu, MonitorPlatformService platformServiceObjUs, DeploymentService deploymentServiceObjEu, DeploymentService deploymentServiceObjUs, LoadBalancerEndPoint loadBalancerEndPointObjEu1, LoadBalancerEndPoint loadBalancerEndPointObjUs1, LoadBalancerEndPoint loadBalancerEndPointObjUs2) implements DeployerIF {
-  List<SmartDeployInterface> depl_list = Nil;
-  
+  SmartDeployInterface depl;
+  {
+    depl = new AddQueryDeployer(cloudProvider, platformServiceObjEu, platformServiceObjUs, deploymentServiceObjEu, deploymentServiceObjUs, loadBalancerEndPointObjEu1, loadBalancerEndPointObjUs1, loadBalancerEndPointObjUs2);
+  }
   Unit scaleUp(){
-    SmartDeployInterface d = new AddQueryDeployer(cloudProvider, platformServiceObjEu, platformServiceObjUs, deploymentServiceObjEu, deploymentServiceObjUs, loadBalancerEndPointObjEu1, loadBalancerEndPointObjUs1, loadBalancerEndPointObjUs2);
-    depl_list = Cons( d, depl_list );
-    d.deploy();
+    depl.deploy();
   }
   Unit scaleDown(){
-    if ( ( depl_list != Nil ) ){
-      SmartDeployInterface d = head(depl_list);
-      depl_list = tail(depl_list);
-      d.undeploy();
-    }
+    depl.undeploy();
   }
 }
 
