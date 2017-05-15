@@ -390,7 +390,7 @@ class DegradationMonitorImpl(DeployerIF deployer) implements DegradationMonitorI
   
   Maybe<ScaleStamp> monitor(){
     Map<String, Rat> degradationSLA = map(Cons( Pair( "asos.fas.live.200ms", ( 5 / 1000 ) ), Cons( Pair( "asos.fas.live.500ms", ( 1 / 1000 ) ), Cons( Pair( "gamma.fas.live.200ms", ( 5 / 100 ) ), Cons( Pair( "gamma.fas.live.500ms", ( 1 / 100 ) ), Nil ) ) ) ));
-    Set<String> metricNames = keys(degradationSLA);
+    //Set<String> metricNames = keys(degradationSLA);
     List<Pair<Time, List<Pair<String, Rat>>>> copyFull = metricHistFull;
     List<Pair<String, Rat>> latestMeasurements = if (isEmpty(copyFull))
                                                  then Nil
@@ -399,6 +399,7 @@ class DegradationMonitorImpl(DeployerIF deployer) implements DegradationMonitorI
     Bool allUnderUtilized = True;
     while (latestMeasurements != Nil) {
       Pair<String,Rat> latestMeasurement = head(latestMeasurements);
+      latestMeasurements = tail(latestMeasurements);
       Rat targetValue = lookupUnsafe(degradationSLA, fst(latestMeasurement));
       Rat latestValue = snd(latestMeasurement);
       Rat difference = (latestValue/100 - targetValue) / targetValue;
