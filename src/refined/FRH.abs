@@ -614,58 +614,44 @@ class AddQueryDeployer(CloudProvider cloudProvider, MonitorPlatformService platf
     deploymentServiceObjUs.addDS(oDef___DeploymentAgentImpl_0_m4_large_us1_0);
   }
   Unit undeploy(){
-    DeploymentAgent oDef___DeploymentAgentImpl_0_m4_large_us1_0 = fst(head(ls_DeploymentAgent));
-    ls_DeploymentAgent = tail(ls_DeploymentAgent);
-    DeploymentAgent oDef___DeploymentAgentImpl_0_m4_large_us2_0 = fst(head(ls_DeploymentAgent));
-    ls_DeploymentAgent = tail(ls_DeploymentAgent);
-    IQueryService olive___QueryServiceImpl_0_m4_large_us2_0 = fst(head(ls_IQueryService));
-    ls_IQueryService = tail(ls_IQueryService);
-    IQueryService olive___QueryServiceImpl_0_m4_large_us1_0 = fst(head(ls_IQueryService));
-    ls_IQueryService = tail(ls_IQueryService);
-    ls_Service = tail(tail(ls_Service));
-    ls_EndPoint = tail(tail(ls_EndPoint));
+    if (length(ls_DeploymentAgent) > 1 ) {
+      DeploymentAgent oDef___DeploymentAgentImpl_0_m4_large_us1_0 = fst(head(ls_DeploymentAgent));
+      ls_DeploymentAgent = tail(ls_DeploymentAgent);
+      DeploymentAgent oDef___DeploymentAgentImpl_0_m4_large_us2_0 = fst(head(ls_DeploymentAgent));
+      ls_DeploymentAgent = tail(ls_DeploymentAgent);
+      IQueryService olive___QueryServiceImpl_0_m4_large_us2_0 = fst(head(ls_IQueryService));
+      ls_IQueryService = tail(ls_IQueryService);
+      IQueryService olive___QueryServiceImpl_0_m4_large_us1_0 = fst(head(ls_IQueryService));
+      ls_IQueryService = tail(ls_IQueryService);
+      ls_Service = tail(tail(ls_Service));
+      ls_EndPoint = tail(tail(ls_EndPoint));
 
-    DeploymentComponent m4_large_us1_0 = head(ls_DeploymentComponent);
-    ls_DeploymentComponent = tail(ls_DeploymentComponent);
-    DeploymentComponent m4_large_us2_0 = head(ls_DeploymentComponent);
-    ls_DeploymentComponent = tail(ls_DeploymentComponent);
-    
-    deploymentServiceObjUs.removeDS(oDef___DeploymentAgentImpl_0_m4_large_us2_0);
-    deploymentServiceObjUs.removeDS(oDef___DeploymentAgentImpl_0_m4_large_us1_0);
-
-
-    oDef___DeploymentAgentImpl_0_m4_large_us2_0.uninstallDA();
-    oDef___DeploymentAgentImpl_0_m4_large_us1_0.uninstallDA();
+      DeploymentComponent m4_large_us1_0 = head(ls_DeploymentComponent);
+      ls_DeploymentComponent = tail(ls_DeploymentComponent);
+      DeploymentComponent m4_large_us2_0 = head(ls_DeploymentComponent);
+      ls_DeploymentComponent = tail(ls_DeploymentComponent);
+      
+      deploymentServiceObjUs.removeDS(oDef___DeploymentAgentImpl_0_m4_large_us2_0);
+      deploymentServiceObjUs.removeDS(oDef___DeploymentAgentImpl_0_m4_large_us1_0);
 
 
-    platformServiceObjUs.removeServiceInstance(olive___QueryServiceImpl_0_m4_large_us2_0);
-    platformServiceObjUs.removeServiceInstance(olive___QueryServiceImpl_0_m4_large_us1_0);
-
-    loadBalancerEndPointObjUs1.removeLBE(olive___QueryServiceImpl_0_m4_large_us2_0);
-    loadBalancerEndPointObjUs1.removeLBE(olive___QueryServiceImpl_0_m4_large_us1_0);
-    loadBalancerEndPointObjUs2.removeLBE(olive___QueryServiceImpl_0_m4_large_us2_0);
-    loadBalancerEndPointObjUs2.removeLBE(olive___QueryServiceImpl_0_m4_large_us1_0);
+      oDef___DeploymentAgentImpl_0_m4_large_us2_0.uninstallDA();
+      oDef___DeploymentAgentImpl_0_m4_large_us1_0.uninstallDA();
 
 
-    cloudProvider.shutdownInstance(m4_large_us1_0);
-    cloudProvider.shutdownInstance(m4_large_us2_0);
+      platformServiceObjUs.removeServiceInstance(olive___QueryServiceImpl_0_m4_large_us2_0);
+      platformServiceObjUs.removeServiceInstance(olive___QueryServiceImpl_0_m4_large_us1_0);
+
+      loadBalancerEndPointObjUs1.removeLBE(olive___QueryServiceImpl_0_m4_large_us2_0);
+      loadBalancerEndPointObjUs1.removeLBE(olive___QueryServiceImpl_0_m4_large_us1_0);
+      loadBalancerEndPointObjUs2.removeLBE(olive___QueryServiceImpl_0_m4_large_us2_0);
+      loadBalancerEndPointObjUs2.removeLBE(olive___QueryServiceImpl_0_m4_large_us1_0);
 
 
-    // ls_EndPoint = Nil;
-    // ls_IQueryService = Nil;
-    // ls_Service = Nil;
-    // ls_ServiceProvider = Nil;
-    // ls_DeploymentAgent = Nil;
-    // ls_LoadBalancerService = Nil;
-    // ls_LoadBalancerEndPoint = Nil;
-    // ls_DeploymentService = Nil;
-    // ls_PlatformService = Nil;
-    // ls_MonitorPlatformService = Nil;
-    // while (! isEmpty(ls_DeploymentComponent)) {
-    //   cloudProvider.shutdownInstance(head(ls_DeploymentComponent));
-    //   ls_DeploymentComponent = tail(ls_DeploymentComponent);
-    // }
-  }
+      cloudProvider.shutdownInstance(m4_large_us1_0);
+      cloudProvider.shutdownInstance(m4_large_us2_0);
+      }
+    }
   }
 
 class MainSmartDeployer(CloudProvider cloudProvider) implements SmartDeployInterface {
@@ -1223,9 +1209,9 @@ class DeploymentServiceImpl implements DeploymentService {
     await tmp433699465?;
     Int serviceId = tmp433699465.get;
     assert ( serviceId != 0 );
+    this.stopDS(serviceId);
     allocations = removeKey(allocations,s);
     services = removeKey(services,serviceId);
-    this.stopDS(serviceId);
   }
 }
 
