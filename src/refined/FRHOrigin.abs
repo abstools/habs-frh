@@ -1945,7 +1945,7 @@ class MonitoringQueryEndpointImpl(List<EndPoint> allEndpoints, DegradationMonito
   }
   Unit invokeWithDelay(Int proctime, String customer, Int amazonECU, Int delay) {
     //Int req = ( proctime * amazonECU );
-    //Time start = now();
+    Time start = now();
     //this.invoke(req);
     //Time end = now();
 
