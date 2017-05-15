@@ -494,11 +494,11 @@ class DegradationMetricImpl implements DegradationMetricIf {
             custCnt = val;
           }
         }
-        Int new200 = ( old200 + case ( procTime > 20 ) {
+        Int new200 = ( old200 + case ( procTime > 200 ) {
             True => 1;
             False => 0;
           } );
-        Int new500 = ( old500 + case ( procTime > 50 ) {
+        Int new500 = ( old500 + case ( procTime > 500 ) {
             True => 1;
             False => 0;
           } );
@@ -1023,7 +1023,7 @@ class LoadBalancerEndPointImpl implements LoadBalancerEndPoint {
     Bool result = False;
     if ( ! inList(services, service) ){
       services = Cons( service, services );
-      current = Cons( service, services );
+      current = Cons( service, current );
       result = True;
     }
     return result;
@@ -1047,7 +1047,7 @@ class LoadBalancerEndPointImpl implements LoadBalancerEndPoint {
     return state;
   }
   List<Service> getServices(){
-    return current;
+    return services;
   }
 }
 
@@ -2037,6 +2037,6 @@ class AddQueryServicesDeployerImpl(CloudProvider cloudProvider, MonitorPlatformS
   [HTTPName : "monitor"] DegradationMonitorIf degradationMonitor = new DegradationMonitorImpl(deployerif);
   Fut<Unit> df = ms!addMS(Rule_( 5000, degradationMonitor ));
   df.get;
-  [HTTPName : "queryService"] MonitoringQueryEndpoint mqep = new MonitoringQueryEndpointImpl(loadBalancerEndPoints, degradationMonitor);
+  [HTTPName : "queryService"] MonitoringQueryEndpoint mqep = new MonitoringQueryEndpointImpl(loadBalancerEndPointsUs, degradationMonitor);
   println("Endpoints set up. Waiting for requests...");
 }
