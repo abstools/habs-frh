@@ -1718,7 +1718,13 @@ class MonitoringServiceImpl implements MonitoringService {
     List<ScaleStamp> tempHistory = this.history; // this.history is not flushed
     List<String> stringHistory = Nil;
     while (tempHistory != Nil) {
-      stringHistory = Cons(toString(head(tempHistory)),stringHistory);
+      String nicerOutput = case head(tempHistory) {
+          ScaleStamp_(t, monitorName, action) => toString(t) + ": the monitor named <i>" + monitorName + "</i> recommends to " + case action {
+              ScaleUp(_) => "<font color=\"green\">Scale Up</font>.";
+              ScaleDown(_) => "<font color=\"red\">Scale Down</font>.";
+          };
+        };
+      stringHistory = Cons(nicerOutput,stringHistory);
       tempHistory = tail(tempHistory);
     }
     return reverse(stringHistory);
