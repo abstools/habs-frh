@@ -25,7 +25,7 @@ function loadRecomms() {
 
     for(var i = arr.length; i>0 ; i--) {
       var item = document.createElement('li');
-      item.appendChild(document.createTextNode(arr[i-1]));
+      item.innerHTML = arr[i-1];
       // Button
       var btn = document.createElement("button");
       btn.appendChild(document.createTextNode("Apply")); //scale up or down
