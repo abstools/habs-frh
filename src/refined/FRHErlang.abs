@@ -384,54 +384,48 @@ class DegradationMonitorImpl(DeployerIF deployer) implements DegradationMonitorI
   List<Pair<Time, List<Pair<String, Rat>>>> metricHist = Nil;
   List<Pair<Time, List<Pair<String, Rat>>>> metricHistFull = Nil; 
   DegradationMetricIf metric;
+  Bool firstScale = True;
   {
     metric = new local DegradationMetricImpl();
   }
   
   Maybe<ScaleStamp> monitor(){
     Map<String, Rat> degradationSLA = map(Cons( Pair( "asos.fas.live.200ms", ( 5 / 1000 ) ), Cons( Pair( "asos.fas.live.500ms", ( 1 / 1000 ) ), Cons( Pair( "gamma.fas.live.200ms", ( 5 / 100 ) ), Cons( Pair( "gamma.fas.live.500ms", ( 1 / 100 ) ), Nil ) ) ) ));
-    Set<String> metricNames = keys(degradationSLA);
-    List<Pair<Time, List<Pair<String, Rat>>>> copyFull = metricHistFull;
-    List<Pair<String, Rat>> latestMeasurements = if (isEmpty(copyFull))
-                                                 then Nil
-                                                 else snd(head(copyFull));
     Maybe<ScaleStamp> res = Nothing;
-    Bool allUnderUtilized = True;
-    while (latestMeasurements != Nil) {
-      Pair<String,Rat> latestMeasurement = head(latestMeasurements);
-      Rat targetValue = lookupUnsafe(degradationSLA, fst(latestMeasurement));
-      Rat latestValue = snd(latestMeasurement);
-      Rat difference = (latestValue/100 - targetValue) / targetValue;
-      if (difference > 1/10) {
-        Time t = now();
-        res = Just(ScaleStamp_(t, "DegradationMonitor", ScaleUp(deployer)));
-        latestMeasurements = Nil; // break
-        allUnderUtilized = False;
-      }
-      else if (difference > -5/10){
-        allUnderUtilized = False;
-      }
-    }
-    if (allUnderUtilized) {
+    if (firstScale) {
+      firstScale = False;
       Time t = now();
-      res = Just(ScaleStamp_(t, "DegradationMonitor", ScaleDown(deployer)));
+      res = Just(ScaleStamp_(t, "DegradationMonitor", ScaleUp(deployer)));
     }
-    //corrective actions to improve metric
-     //deployer.scaleUp();
-     //println("monitor: " + toString(now()));
-    
-          //TODO
-          /*List<Pair<String, Rat>> currMetrics = snd(head(metricHist));
-          Rat slow200pct = snd(head(currMetrics));
-          Rat slow500pct = snd(head(tail(currMetrics)));
-     
-          if(slow200pct > 5 || slow500pct > 1) {
-            deployer.scaleUp();
-          } else if(slow200pct < 3 && slow500pct < 3/10) {
-            deployer.scaleDown();
-          }*/
+    else {
+      //Set<String> metricNames = keys(degradationSLA);
+      List<Pair<Time, List<Pair<String, Rat>>>> copyFull = metricHistFull;
+      List<Pair<String, Rat>> latestMeasurements = if (isEmpty(copyFull))
+                                                   then Nil
+                                                   else snd(head(copyFull));
+      Bool allUnderUtilized = True;
+      while (latestMeasurements != Nil) {
+        Pair<String,Rat> latestMeasurement = head(latestMeasurements);
+        latestMeasurements = tail(latestMeasurements);
+        Rat targetValue = lookupUnsafe(degradationSLA, fst(latestMeasurement));
+        Rat latestValue = snd(latestMeasurement);
+        Rat difference = (latestValue/100 - targetValue) / targetValue;
+        if (difference > 1/10) {
+          Time t = now();
+          res = Just(ScaleStamp_(t, "DegradationMonitor", ScaleUp(deployer)));
+          latestMeasurements = Nil; // break
+          allUnderUtilized = False;
+        }
+        else if (difference > -5/10){
+          allUnderUtilized = False;
+        }
+      }
+      if (allUnderUtilized) {
+        Time t = now();
+        res = Just(ScaleStamp_(t, "DegradationMonitor", ScaleDown(deployer)));
+      }
+    }
     return res;
-    //return(ScaleStamp_(t,"DegradationMonitorImpl",ScaleNot));  
   }
   List<Pair<Time, List<Pair<String, Rat>>>> metricHistory(){
     List<Pair<Time, List<Pair<String, Rat>>>> copy = metricHist;
@@ -494,11 +488,11 @@ class DegradationMetricImpl implements DegradationMetricIf {
             custCnt = val;
           }
         }
-        Int new200 = ( old200 + case ( procTime > 20 ) {
+        Int new200 = ( old200 + case ( procTime > 200 ) {
             True => 1;
             False => 0;
           } );
-        Int new500 = ( old500 + case ( procTime > 50 ) {
+        Int new500 = ( old500 + case ( procTime > 500 ) {
             True => 1;
             False => 0;
           } );
@@ -613,58 +607,44 @@ class AddQueryDeployer(CloudProvider cloudProvider, MonitorPlatformService platf
     deploymentServiceObjUs.addDS(oDef___DeploymentAgentImpl_0_m4_large_us1_0);
   }
   Unit undeploy(){
-    DeploymentAgent oDef___DeploymentAgentImpl_0_m4_large_us1_0 = fst(head(ls_DeploymentAgent));
-    ls_DeploymentAgent = tail(ls_DeploymentAgent);
-    DeploymentAgent oDef___DeploymentAgentImpl_0_m4_large_us2_0 = fst(head(ls_DeploymentAgent));
-    ls_DeploymentAgent = tail(ls_DeploymentAgent);
-    IQueryService olive___QueryServiceImpl_0_m4_large_us2_0 = fst(head(ls_IQueryService));
-    ls_IQueryService = tail(ls_IQueryService);
-    IQueryService olive___QueryServiceImpl_0_m4_large_us1_0 = fst(head(ls_IQueryService));
-    ls_IQueryService = tail(ls_IQueryService);
-    ls_Service = tail(tail(ls_Service));
-    ls_EndPoint = tail(tail(ls_EndPoint));
+    if (length(ls_DeploymentAgent) > 1 ) {
+      DeploymentAgent oDef___DeploymentAgentImpl_0_m4_large_us1_0 = fst(head(ls_DeploymentAgent));
+      ls_DeploymentAgent = tail(ls_DeploymentAgent);
+      DeploymentAgent oDef___DeploymentAgentImpl_0_m4_large_us2_0 = fst(head(ls_DeploymentAgent));
+      ls_DeploymentAgent = tail(ls_DeploymentAgent);
+      IQueryService olive___QueryServiceImpl_0_m4_large_us2_0 = fst(head(ls_IQueryService));
+      ls_IQueryService = tail(ls_IQueryService);
+      IQueryService olive___QueryServiceImpl_0_m4_large_us1_0 = fst(head(ls_IQueryService));
+      ls_IQueryService = tail(ls_IQueryService);
+      ls_Service = tail(tail(ls_Service));
+      ls_EndPoint = tail(tail(ls_EndPoint));
 
-    DeploymentComponent m4_large_us1_0 = head(ls_DeploymentComponent);
-    ls_DeploymentComponent = tail(ls_DeploymentComponent);
-    DeploymentComponent m4_large_us2_0 = head(ls_DeploymentComponent);
-    ls_DeploymentComponent = tail(ls_DeploymentComponent);
-    
-    deploymentServiceObjUs.removeDS(oDef___DeploymentAgentImpl_0_m4_large_us2_0);
-    deploymentServiceObjUs.removeDS(oDef___DeploymentAgentImpl_0_m4_large_us1_0);
-
-
-    oDef___DeploymentAgentImpl_0_m4_large_us2_0.uninstallDA();
-    oDef___DeploymentAgentImpl_0_m4_large_us1_0.uninstallDA();
+      DeploymentComponent m4_large_us1_0 = head(ls_DeploymentComponent);
+      ls_DeploymentComponent = tail(ls_DeploymentComponent);
+      DeploymentComponent m4_large_us2_0 = head(ls_DeploymentComponent);
+      ls_DeploymentComponent = tail(ls_DeploymentComponent);
+      
+      deploymentServiceObjUs.removeDS(oDef___DeploymentAgentImpl_0_m4_large_us2_0);
+      deploymentServiceObjUs.removeDS(oDef___DeploymentAgentImpl_0_m4_large_us1_0);
 
 
-    platformServiceObjUs.removeServiceInstance(olive___QueryServiceImpl_0_m4_large_us2_0);
-    platformServiceObjUs.removeServiceInstance(olive___QueryServiceImpl_0_m4_large_us1_0);
-
-    loadBalancerEndPointObjUs1.removeLBE(olive___QueryServiceImpl_0_m4_large_us2_0);
-    loadBalancerEndPointObjUs1.removeLBE(olive___QueryServiceImpl_0_m4_large_us1_0);
-    loadBalancerEndPointObjUs2.removeLBE(olive___QueryServiceImpl_0_m4_large_us2_0);
-    loadBalancerEndPointObjUs2.removeLBE(olive___QueryServiceImpl_0_m4_large_us1_0);
+      oDef___DeploymentAgentImpl_0_m4_large_us2_0.uninstallDA();
+      oDef___DeploymentAgentImpl_0_m4_large_us1_0.uninstallDA();
 
 
-    cloudProvider.shutdownInstance(m4_large_us1_0);
-    cloudProvider.shutdownInstance(m4_large_us2_0);
+      platformServiceObjUs.removeServiceInstance(olive___QueryServiceImpl_0_m4_large_us2_0);
+      platformServiceObjUs.removeServiceInstance(olive___QueryServiceImpl_0_m4_large_us1_0);
+
+      loadBalancerEndPointObjUs1.removeLBE(olive___QueryServiceImpl_0_m4_large_us2_0);
+      loadBalancerEndPointObjUs1.removeLBE(olive___QueryServiceImpl_0_m4_large_us1_0);
+      loadBalancerEndPointObjUs2.removeLBE(olive___QueryServiceImpl_0_m4_large_us2_0);
+      loadBalancerEndPointObjUs2.removeLBE(olive___QueryServiceImpl_0_m4_large_us1_0);
 
 
-    // ls_EndPoint = Nil;
-    // ls_IQueryService = Nil;
-    // ls_Service = Nil;
-    // ls_ServiceProvider = Nil;
-    // ls_DeploymentAgent = Nil;
-    // ls_LoadBalancerService = Nil;
-    // ls_LoadBalancerEndPoint = Nil;
-    // ls_DeploymentService = Nil;
-    // ls_PlatformService = Nil;
-    // ls_MonitorPlatformService = Nil;
-    // while (! isEmpty(ls_DeploymentComponent)) {
-    //   cloudProvider.shutdownInstance(head(ls_DeploymentComponent));
-    //   ls_DeploymentComponent = tail(ls_DeploymentComponent);
-    // }
-  }
+      cloudProvider.shutdownInstance(m4_large_us1_0);
+      cloudProvider.shutdownInstance(m4_large_us2_0);
+      }
+    }
   }
 
 class MainSmartDeployer(CloudProvider cloudProvider) implements SmartDeployInterface {
@@ -742,9 +722,9 @@ class MainSmartDeployer(CloudProvider cloudProvider) implements SmartDeployInter
     [DC : c4_2xlarge_eu_0]
     DeploymentService oDef___DeploymentServiceImpl_0_c4_2xlarge_eu_0 = new DeploymentServiceImpl();
     ls_DeploymentService = Cons( Pair( oDef___DeploymentServiceImpl_0_c4_2xlarge_eu_0, c4_2xlarge_eu_0 ), ls_DeploymentService );
-    [DC : m4_xlarge_eu_0]
-    DeploymentAgent oDef___DeploymentAgentImpl_0_m4_xlarge_eu_0 = new DeploymentAgentImpl();
-    ls_DeploymentAgent = Cons( Pair( oDef___DeploymentAgentImpl_0_m4_xlarge_eu_0, m4_xlarge_eu_0 ), ls_DeploymentAgent );
+    // [DC : m4_xlarge_eu_0]
+    // DeploymentAgent oDef___DeploymentAgentImpl_0_m4_xlarge_eu_0 = new DeploymentAgentImpl();
+    // ls_DeploymentAgent = Cons( Pair( oDef___DeploymentAgentImpl_0_m4_xlarge_eu_0, m4_xlarge_eu_0 ), ls_DeploymentAgent );
     [DC : c4_xlarge_us2_0]
     LoadBalancerEndPoint oDef___LoadBalancerEndPointImpl_0_c4_xlarge_us2_0 = new LoadBalancerEndPointImpl();
     ls_LoadBalancerEndPoint = Cons( Pair( oDef___LoadBalancerEndPointImpl_0_c4_xlarge_us2_0, c4_xlarge_us2_0 ), ls_LoadBalancerEndPoint );
@@ -753,31 +733,31 @@ class MainSmartDeployer(CloudProvider cloudProvider) implements SmartDeployInter
     LoadBalancerEndPoint oDef___LoadBalancerEndPointImpl_0_c4_xlarge_eu_0 = new LoadBalancerEndPointImpl();
     ls_LoadBalancerEndPoint = Cons( Pair( oDef___LoadBalancerEndPointImpl_0_c4_xlarge_eu_0, c4_xlarge_eu_0 ), ls_LoadBalancerEndPoint );
     ls_EndPoint = Cons( Pair( oDef___LoadBalancerEndPointImpl_0_c4_xlarge_eu_0, c4_xlarge_eu_0 ), ls_EndPoint );
-    [DC : m4_large_eu_0]
-    DeploymentAgent oDef___DeploymentAgentImpl_0_m4_large_eu_0 = new DeploymentAgentImpl();
-    ls_DeploymentAgent = Cons( Pair( oDef___DeploymentAgentImpl_0_m4_large_eu_0, m4_large_eu_0 ), ls_DeploymentAgent );
+    // [DC : m4_large_eu_0]
+    // DeploymentAgent oDef___DeploymentAgentImpl_0_m4_large_eu_0 = new DeploymentAgentImpl();
+    // ls_DeploymentAgent = Cons( Pair( oDef___DeploymentAgentImpl_0_m4_large_eu_0, m4_large_eu_0 ), ls_DeploymentAgent );
     [DC : c4_2xlarge_eu_0]
     LoadBalancerService oDef___LoadBalancerServiceImpl_0_c4_2xlarge_eu_0 = new LoadBalancerServiceImpl();
     ls_LoadBalancerService = Cons( Pair( oDef___LoadBalancerServiceImpl_0_c4_2xlarge_eu_0, c4_2xlarge_eu_0 ), ls_LoadBalancerService );
-    [DC : m4_large_us1_0]
-    DeploymentAgent oDef___DeploymentAgentImpl_0_m4_large_us1_0 = new DeploymentAgentImpl();
-    ls_DeploymentAgent = Cons( Pair( oDef___DeploymentAgentImpl_0_m4_large_us1_0, m4_large_us1_0 ), ls_DeploymentAgent );
-    [DC : m4_xlarge_us2_0]
-    DeploymentAgent oDef___DeploymentAgentImpl_0_m4_xlarge_us2_0 = new DeploymentAgentImpl();
-    ls_DeploymentAgent = Cons( Pair( oDef___DeploymentAgentImpl_0_m4_xlarge_us2_0, m4_xlarge_us2_0 ), ls_DeploymentAgent );
+    // [DC : m4_large_us1_0]
+    // DeploymentAgent oDef___DeploymentAgentImpl_0_m4_large_us1_0 = new DeploymentAgentImpl();
+    // ls_DeploymentAgent = Cons( Pair( oDef___DeploymentAgentImpl_0_m4_large_us1_0, m4_large_us1_0 ), ls_DeploymentAgent );
+    // [DC : m4_xlarge_us2_0]
+    // DeploymentAgent oDef___DeploymentAgentImpl_0_m4_xlarge_us2_0 = new DeploymentAgentImpl();
+    // ls_DeploymentAgent = Cons( Pair( oDef___DeploymentAgentImpl_0_m4_xlarge_us2_0, m4_xlarge_us2_0 ), ls_DeploymentAgent );
     [DC : c4_2xlarge_us1_0]
     DeploymentService oDef___DeploymentServiceImpl_0_c4_2xlarge_us1_0 = new DeploymentServiceImpl();
     ls_DeploymentService = Cons( Pair( oDef___DeploymentServiceImpl_0_c4_2xlarge_us1_0, c4_2xlarge_us1_0 ), ls_DeploymentService );
-    [DC : m4_xlarge_us2_0]
-    IQueryService ostaging___QueryServiceImpl_0_m4_xlarge_us2_0 = new QueryServiceImpl(oDef___DeploymentAgentImpl_0_m4_xlarge_us2_0, "Customer X", True);
-    ls_IQueryService = Cons( Pair( ostaging___QueryServiceImpl_0_m4_xlarge_us2_0, m4_xlarge_us2_0 ), ls_IQueryService );
-    ls_Service = Cons( Pair( ostaging___QueryServiceImpl_0_m4_xlarge_us2_0, m4_xlarge_us2_0 ), ls_Service );
-    ls_EndPoint = Cons( Pair( ostaging___QueryServiceImpl_0_m4_xlarge_us2_0, m4_xlarge_us2_0 ), ls_EndPoint );
+    // [DC : m4_xlarge_us2_0]
+    // IQueryService ostaging___QueryServiceImpl_0_m4_xlarge_us2_0 = new QueryServiceImpl(oDef___DeploymentAgentImpl_0_m4_xlarge_us2_0, "Customer X", True);
+    // ls_IQueryService = Cons( Pair( ostaging___QueryServiceImpl_0_m4_xlarge_us2_0, m4_xlarge_us2_0 ), ls_IQueryService );
+    // ls_Service = Cons( Pair( ostaging___QueryServiceImpl_0_m4_xlarge_us2_0, m4_xlarge_us2_0 ), ls_Service );
+    // ls_EndPoint = Cons( Pair( ostaging___QueryServiceImpl_0_m4_xlarge_us2_0, m4_xlarge_us2_0 ), ls_EndPoint );
     [DC : c4_2xlarge_eu_0]
     MonitorPlatformService oDef___PlatformServiceImpl_0_c4_2xlarge_eu_0 = new PlatformServiceImpl(oDef___DeploymentServiceImpl_0_c4_2xlarge_eu_0, oDef___LoadBalancerServiceImpl_0_c4_2xlarge_eu_0);
     ls_MonitorPlatformService = Cons( Pair( oDef___PlatformServiceImpl_0_c4_2xlarge_eu_0, c4_2xlarge_eu_0 ), ls_MonitorPlatformService );
     ls_PlatformService = Cons( Pair( oDef___PlatformServiceImpl_0_c4_2xlarge_eu_0, c4_2xlarge_eu_0 ), ls_PlatformService );
-    [DC : m4_large_us1_0]
+    /*[DC : m4_large_us1_0]
     IQueryService olive___QueryServiceImpl_0_m4_large_us1_0 = new QueryServiceImpl(oDef___DeploymentAgentImpl_0_m4_large_us1_0, "Customer X", False);
     ls_IQueryService = Cons( Pair( olive___QueryServiceImpl_0_m4_large_us1_0, m4_large_us1_0 ), ls_IQueryService );
     ls_Service = Cons( Pair( olive___QueryServiceImpl_0_m4_large_us1_0, m4_large_us1_0 ), ls_Service );
@@ -791,7 +771,7 @@ class MainSmartDeployer(CloudProvider cloudProvider) implements SmartDeployInter
     IQueryService olive___QueryServiceImpl_0_m4_large_eu_0 = new QueryServiceImpl(oDef___DeploymentAgentImpl_0_m4_large_eu_0, "Customer X", False);
     ls_IQueryService = Cons( Pair( olive___QueryServiceImpl_0_m4_large_eu_0, m4_large_eu_0 ), ls_IQueryService );
     ls_Service = Cons( Pair( olive___QueryServiceImpl_0_m4_large_eu_0, m4_large_eu_0 ), ls_Service );
-    ls_EndPoint = Cons( Pair( olive___QueryServiceImpl_0_m4_large_eu_0, m4_large_eu_0 ), ls_EndPoint );
+    ls_EndPoint = Cons( Pair( olive___QueryServiceImpl_0_m4_large_eu_0, m4_large_eu_0 ), ls_EndPoint );*/
     [DC : c4_2xlarge_us1_0]
     MonitorPlatformService oDef___PlatformServiceImpl_0_c4_2xlarge_us1_0 = new PlatformServiceImpl(oDef___DeploymentServiceImpl_0_c4_2xlarge_us1_0, oDef___LoadBalancerServiceImpl_0_c4_2xlarge_us1_0);
     ls_MonitorPlatformService = Cons( Pair( oDef___PlatformServiceImpl_0_c4_2xlarge_us1_0, c4_2xlarge_us1_0 ), ls_MonitorPlatformService );
@@ -799,7 +779,7 @@ class MainSmartDeployer(CloudProvider cloudProvider) implements SmartDeployInter
     oDef___PlatformServiceImpl_0_c4_2xlarge_eu_0.addEndPoint(oDef___LoadBalancerEndPointImpl_0_c4_xlarge_eu_0);
     oDef___PlatformServiceImpl_0_c4_2xlarge_us1_0.addEndPoint(oDef___LoadBalancerEndPointImpl_0_c4_xlarge_us1_0);
     oDef___PlatformServiceImpl_0_c4_2xlarge_us1_0.addEndPoint(oDef___LoadBalancerEndPointImpl_0_c4_xlarge_us2_0);
-    oDef___LoadBalancerEndPointImpl_0_c4_xlarge_eu_0.addLBE(olive___QueryServiceImpl_0_m4_large_eu_0);
+    /*oDef___LoadBalancerEndPointImpl_0_c4_xlarge_eu_0.addLBE(olive___QueryServiceImpl_0_m4_large_eu_0);
     oDef___LoadBalancerEndPointImpl_0_c4_xlarge_eu_0.addLBE(ostaging___QueryServiceImpl_0_m4_xlarge_eu_0);
     oDef___LoadBalancerEndPointImpl_0_c4_xlarge_us1_0.addLBE(olive___QueryServiceImpl_0_m4_large_us1_0);
     oDef___LoadBalancerEndPointImpl_0_c4_xlarge_us2_0.addLBE(olive___QueryServiceImpl_0_m4_large_us1_0);
@@ -816,7 +796,7 @@ class MainSmartDeployer(CloudProvider cloudProvider) implements SmartDeployInter
     oDef___DeploymentServiceImpl_0_c4_2xlarge_eu_0.addDS(oDef___DeploymentAgentImpl_0_m4_large_eu_0);
     oDef___DeploymentServiceImpl_0_c4_2xlarge_eu_0.addDS(oDef___DeploymentAgentImpl_0_m4_xlarge_eu_0);
     oDef___DeploymentServiceImpl_0_c4_2xlarge_us1_0.addDS(oDef___DeploymentAgentImpl_0_m4_large_us1_0);
-    oDef___DeploymentServiceImpl_0_c4_2xlarge_us1_0.addDS(oDef___DeploymentAgentImpl_0_m4_xlarge_us2_0);
+    oDef___DeploymentServiceImpl_0_c4_2xlarge_us1_0.addDS(oDef___DeploymentAgentImpl_0_m4_xlarge_us2_0);*/
   }
   Unit undeploy(){
     // no need to implement the undeploy for the MainDeployer
@@ -1023,7 +1003,7 @@ class LoadBalancerEndPointImpl implements LoadBalancerEndPoint {
     Bool result = False;
     if ( ! inList(services, service) ){
       services = Cons( service, services );
-      current = Cons( service, services );
+      current = Cons( service, current );
       result = True;
     }
     return result;
@@ -1047,7 +1027,7 @@ class LoadBalancerEndPointImpl implements LoadBalancerEndPoint {
     return state;
   }
   List<Service> getServices(){
-    return current;
+    return services;
   }
 }
 
@@ -1222,9 +1202,9 @@ class DeploymentServiceImpl implements DeploymentService {
     await tmp433699465?;
     Int serviceId = tmp433699465.get;
     assert ( serviceId != 0 );
+    this.stopDS(serviceId);
     allocations = removeKey(allocations,s);
     services = removeKey(services,serviceId);
-    this.stopDS(serviceId);
   }
 }
 
@@ -1863,7 +1843,7 @@ class QueryServiceImpl(DeploymentAgent da, String c, Bool staging) implements IQ
   Bool invoke(Int request){
     assert ( currentState == RUNNING );
     Time t = now();
-    println(( ( toString(t) + ": invoking query with cost " ) + toString(request) ));
+    println(toString(t) + ": invoking query with cost " + toString(request) + " in serviceId: "  + toString(serviceId));
     [Cost : cost(request)] reqCount = ( reqCount + 1 );
     return True;
   }
@@ -1986,19 +1966,15 @@ class UtilityFunctionsImpl implements UtilityFunctions {
 
 
 class AddQueryServicesDeployerImpl(CloudProvider cloudProvider, MonitorPlatformService platformServiceObjEu, MonitorPlatformService platformServiceObjUs, DeploymentService deploymentServiceObjEu, DeploymentService deploymentServiceObjUs, LoadBalancerEndPoint loadBalancerEndPointObjEu1, LoadBalancerEndPoint loadBalancerEndPointObjUs1, LoadBalancerEndPoint loadBalancerEndPointObjUs2) implements DeployerIF {
-  List<SmartDeployInterface> depl_list = Nil;
-  
+  SmartDeployInterface depl;
+  {
+    depl = new AddQueryDeployer(cloudProvider, platformServiceObjEu, platformServiceObjUs, deploymentServiceObjEu, deploymentServiceObjUs, loadBalancerEndPointObjEu1, loadBalancerEndPointObjUs1, loadBalancerEndPointObjUs2);
+  }
   Unit scaleUp(){
-    SmartDeployInterface d = new AddQueryDeployer(cloudProvider, platformServiceObjEu, platformServiceObjUs, deploymentServiceObjEu, deploymentServiceObjUs, loadBalancerEndPointObjEu1, loadBalancerEndPointObjUs1, loadBalancerEndPointObjUs2);
-    depl_list = Cons( d, depl_list );
-    d.deploy();
+    depl.deploy();
   }
   Unit scaleDown(){
-    if ( ( depl_list != Nil ) ){
-      SmartDeployInterface d = head(depl_list);
-      depl_list = tail(depl_list);
-      d.undeploy();
-    }
+    depl.undeploy();
   }
 }
 
@@ -2037,6 +2013,6 @@ class AddQueryServicesDeployerImpl(CloudProvider cloudProvider, MonitorPlatformS
   [HTTPName : "monitor"] DegradationMonitorIf degradationMonitor = new DegradationMonitorImpl(deployerif);
   Fut<Unit> df = ms!addMS(Rule_( 5000, degradationMonitor ));
   df.get;
-  [HTTPName : "queryService"] MonitoringQueryEndpoint mqep = new MonitoringQueryEndpointImpl(loadBalancerEndPoints, degradationMonitor);
+  [HTTPName : "queryService"] MonitoringQueryEndpoint mqep = new MonitoringQueryEndpointImpl(loadBalancerEndPointsUs, degradationMonitor);
   println("Endpoints set up. Waiting for requests...");
 }
