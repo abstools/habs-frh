@@ -22,7 +22,7 @@ source ~/.bashrc
 
 # other deps
 sudo apt-get install unzip git python3 python3-pip default-jdk ant erlang -y
-pip3 install setuptools 
+pip3 install setuptools
 pip3 install requests modgrammar
 git submodule update --init --recursive
 # follow the Configuration instructions on metviz/README.md
@@ -36,6 +36,7 @@ cd habs/
 cabal sandbox init
 cabal sandbox add-source habs-parser
 cabal sandbox add-source habs-runtime
+cabal sandbox add-source haskell-src-exts-qq
 
 cabal update
 cabal install habs-runtime -fwait-all-cogs
